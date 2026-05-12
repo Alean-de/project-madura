@@ -1,0 +1,76 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
+
+class AuthController extends Controller
+{
+    // Menampilkan view
+    public function login()
+    {
+        return view('auth.login');
+    }
+
+    public function register()
+    {
+        return view('auth.register');
+    }
+
+    public function logout(Request $request)
+    {
+        Auth::logout();
+
+        $request->session()->invalidate();
+
+        $request->session()->regenerateToken();
+        
+        return redirect('/login');
+    }
+    
+    // Proses input user
+    public function processRegister(Request $request)
+    {
+        // Validasi input user
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email',
+            'password' => 'required|confirmed'
+        ]);
+
+        User::create([
+            // Insert data ke table users
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => $request->password
+        ]);
+
+        return redirect('/login');
+    }
+
+    public function processLogin(Request $request)
+    {
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required'
+        ]);
+
+        if (Auth::attempt($credentials)) {
+            
+            $request->session()->regenerate();
+
+            return redirect('/dashboard');
+        }
+
+        return back()->with('error', 'Email atau Password salah');
+    }
+
+    public function dashboard()
+    {
+        return view('dashboard', [
+            'user' => Auth::user()
+        ]);
+    }
+}
