@@ -3,24 +3,25 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Produk;
+use App\Models\Product;
+use App\Models\Category;
 
-class ProdukController extends Controller
+class ProductController extends Controller
 {
     public function store(Request $request)
     {
         $request->validate([
-            'nama_produk' => 'required',
-            'harga_jual' => 'required|numeric'
+            'product_name' => 'required',
+            'selling_price' => 'required|numeric'
         ]);
 
-        Produk::create($request->all());
+        Product::create($request->all());
         return redirect()->back()->with('success', 'Produk Berhasil Ditambahkan');
     }
 
     public function destroy(int $id)
     {
-        $produk = Produk::findOrFail($id);
+        $produk = Product::findOrFail($id);
         $produk->delete();
 
         return redirect()->back()->with('success', 'Produk Berhasil Dihapus');
@@ -28,7 +29,7 @@ class ProdukController extends Controller
 
     public function update(Request $request, int $id)
     {
-        $produk = Produk::findOrFail($id);
+        $produk = Product::findOrFail($id);
         
          $produk->update([
             'nama_produk'  => $request->nama_produk,
@@ -45,8 +46,10 @@ class ProdukController extends Controller
 
     public function index()
     {
-        $produk = Produk::all();
-        return view('produk', compact('produk'));
+        $product = Product::all();
+        $category = Category::all();
+
+        return view('produk', compact('product', 'category'));
     }
     
 }

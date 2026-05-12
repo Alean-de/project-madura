@@ -35,24 +35,23 @@
             </tr>
         </thead>
         <tbody>
-            @foreach ($produk as $p)
+            @foreach ($product as $p)
             <tr>
-                <td>{{ $p->nama_produk }}</td>    
-                <td>{{ $p->kategori }}</td>
-                <td>{{ $p->supplier }}</td>
-                <td>Rp {{ number_format($p->harga_jual, 0, ',', '.') }}</td>
-                <td>{{ $p->stok_minimum }}</td> 
-                <td>{{ $p->satuan }}</td>
+                <td>{{ $p->product_name }}</td>    
+                <td>{{ $p->category->category_name }}</td>
+                <td>{{ $p->supplier_id }}</td>
+                <td>Rp {{ number_format($p->purchase_price, 0, ',', '.') }}</td>
+                <td>{{ $p->minimum_stock }}</td> 
+                <td>{{ $p->unit }}</td>
                 <td>
-                    <form action="{{ route('produk.destroy', $p->id) }}" method="POST">
+                    <form action="{{ route('produk.destroy', $p->product_id) }}" method="POST">
                         @csrf
                         @method('DELETE')
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $p->product_id }}">
                             <i class="bi bi-trash3"></i>
-                            Hapus
                         </button>
                         
-                        <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal fade" id="deleteModal{{ $p->product_id }}" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog" role="document">
                                 <div class="modal-content">
                                 <div class="modal-header">
@@ -71,15 +70,14 @@
                         </div>
                     </form>
 
-                    <form action="{{ route('produk.update', $p->id) }}" method="POST">
+                    <form action="{{ route('produk.update', $p->product_id) }}" method="POST">
                         @csrf
                         @method('PUT')
-                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ $p->id }}">
+                        <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ $p->product_id }}">
                             <i class="bi bi-pencil-square"></i>
-                            Edit
                         </button>
                         
-                        <div class="modal fade" id="editModal{{ $p->id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal fade" id="editModal{{ $p->product_id }}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                             <div class="modal-dialog">
                                 <div class="modal-content">
                                     <div class="modal-header">
@@ -89,13 +87,15 @@
 
                                     <div class="modal-body">           
                                                 
-                                            <input type="text" value="{{ $p->nama_produk }}" name="nama_produk" placeholder="Nama Produk" class="form-control mb-3" required>
-
-                                            <select value="{{ $p->kategori_id }}" name="kategori" id="kategori" class="form-select mb-3" required>
+                                            <input type="text" value="{{ $p->product_name }}" name="nama_produk" placeholder="Nama Produk" class="form-control mb-3" required>
+                                                
+                                            <select value="{{ $p->category_id }}" name="kategori" id="kategori" class="form-select mb-3" required>
                                                 <option value="" selected disabled>Pilih Kategori</option>
-                                                <option value="1">Makanan</option>
-                                                <option value="2">Minuman</option>
-                                                <option value="3">Sembako</option>
+                                                @foreach ($category as $c)
+                                                    <option value="{{ $c->category_id }}">
+                                                        {{ $c->category_name }}
+                                                    </option>
+                                                @endforeach
                                             </select>
 
                                             <select value="{{ $p->supplier_id }}" name="supplier" id="supplier" class="form-select mb-3" required>
@@ -103,15 +103,15 @@
                                                 <option value="1">PT.XYZ</option>
                                             </select>
 
-                                            <input type="number" min="0" step="1" value="{{ $p->harga_beli }}" name="harga_beli" placeholder="Harga Beli" class="form-control mb-3" required>
+                                            <input type="number" min="0" step="1" value="{{ $p->purchase_price }}" name="harga_beli" placeholder="Harga Beli" class="form-control mb-3" required>
                                                 
-                                            <input type="number" min="0" step="1" value="{{ $p->harga_jual }}" name="harga_jual" placeholder="Harga Jual" class="form-control mb-3" required>
+                                            <input type="number" min="0" step="1" value="{{ $p->selling_price }}" name="harga_jual" placeholder="Harga Jual" class="form-control mb-3" required>
                                             
-                                            <input type="text" value="{{ $p->stok_awal }}" name="stok_awal" placeholder="Stok Awal" class="form-control mb-3" required>
+                                            <input type="text" value="{{ $p->initial_stock }}" name="stok_awal" placeholder="Stok Awal" class="form-control mb-3" required>
 
-                                            <input type="text" value="{{ $p->stok_minimum }}" name="stok_minimum" placeholder="Stok Minimum" class="form-control mb-3" required>
+                                            <input type="text" value="{{ $p->minimum_stock }}" name="stok_minimum" placeholder="Stok Minimum" class="form-control mb-3" required>
                                                 
-                                            <input type="text" value="{{ $p->satuan }}" name="satuan" placeholder="Satuan" class="form-control mb-3" required>   
+                                            <input type="text" value="{{ $p->unit }}" name="satuan" placeholder="Satuan" class="form-control mb-3" required>   
                                     </div>
 
                                     <div class="modal-footer">
@@ -140,29 +140,31 @@
 
                 <div class="modal-body">           
                             
-                        <input type="text" name="nama_produk" placeholder="Nama Produk" class="form-control mb-3" required>
+                        <input type="text" name="product_name" placeholder="Nama Produk" class="form-control mb-3" required>
 
-                        <select name="kategori" id="kategori" class="form-select mb-3" required>
+                        <select name="category_id" id="kategori" class="form-select mb-3" required>
                             <option value="" selected disabled>Pilih Kategori</option>
-                            <option value="1">Makanan</option>
-                            <option value="2">Minuman</option>
-                            <option value="3">Sembako</option>
+                            @foreach ($category as $c)
+                                <option value="{{ $c->category_id }}">
+                                     {{ $c->category_name }}
+                                </option>
+                            @endforeach
                         </select>
 
-                        <select name="supplier" id="supplier" class="form-select mb-3" required>
+                        <select name="supplier_id" id="supplier" class="form-select mb-3" required>
                             <option value="" selected disabled>Pilih Supplier</option>
                             <option value="1">PT.XYZ</option>
                         </select>
 
-                        <input type="number" min="0" step="1" name="harga_beli" placeholder="Harga Beli" class="form-control mb-3" required>
+                        <input type="number" min="0" step="1" name="purchase_price" placeholder="Harga Beli" class="form-control mb-3" required>
                             
-                        <input type="number" min="0" step="1" name="harga_jual" placeholder="Harga Jual" class="form-control mb-3" required>
+                        <input type="number" min="0" step="1" name="selling_price" placeholder="Harga Jual" class="form-control mb-3" required>
                         
-                        <input type="text" name="stok_awal" placeholder="Stok Awal" class="form-control mb-3" required>
+                        <input type="text" name="initial_stock" placeholder="Stok Awal" class="form-control mb-3" required>
 
-                        <input type="text" name="stok_minimum" placeholder="Stok Minimum" class="form-control mb-3" required>
+                        <input type="text" name="minimum_stock" placeholder="Stok Minimum" class="form-control mb-3" required>
                             
-                        <input type="text" name="satuan" placeholder="Satuan" class="form-control mb-3" required>   
+                        <input type="text" name="unit" placeholder="Satuan" class="form-control mb-3" required>   
                 </div>
 
                 <div class="modal-footer">
