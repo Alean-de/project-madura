@@ -50,6 +50,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/kategori/simpan', [CategoriesController::class, 'newCategory'])->name('kategori.newKategori');
 
     Route::delete('/produk/{id}', [ProductController::class, 'destroy'])->name('produk.destroy');
+    Route::delete('/category/{category_id}', [CategoriesController::class, 'deleteCategory'])->name('category.deleteCategory');
     
     Route::put('/product{id}', [ProductController::class, 'update'])->name('produk.update');
 

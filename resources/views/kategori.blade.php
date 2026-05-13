@@ -66,14 +66,14 @@
                 </td>
                 <td class="d-flex gap-2">
 
+                    <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $c->category_id }}">
+                        <i class="bi bi-trash3"></i>
+                    </button>
+
                     <!-- DELETE -->
-                    <form action="" method="POST">
+                    <form action="{{ route('category.deleteCategory', $c->category_id) }}" method="POST">
                         @csrf
                         @method('DELETE')
-
-                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $c->category_id }}">
-                            <i class="bi bi-trash3"></i>
-                        </button>
 
                         <div class="modal fade" id="deleteModal{{ $c->category_id }}" tabindex="-1">
                             <div class="modal-dialog">
@@ -100,10 +100,8 @@
                                             Batal
                                         </button>
 
-                                        <button type="submit"
-                                            class="btn btn-danger">
-
-                                            Ya
+                                        <button type="submit" class="btn btn-danger">
+                                              Ya
                                         </button>
                                     </div>
                                 </div>

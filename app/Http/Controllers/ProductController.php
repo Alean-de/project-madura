@@ -11,7 +11,7 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'product_name' => 'required',
+            'product_name' => 'required|unique:products,product_name',
             'selling_price' => 'required|numeric'
         ]);
 
@@ -47,7 +47,7 @@ class ProductController extends Controller
     public function index()
     {
         $product = Product::all();
-        $category = Category::all();
+        $category = Category::where('status', true)->get();
 
         return view('produk', compact('product', 'category'));
     }

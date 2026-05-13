@@ -8,7 +8,10 @@ use Illuminate\Http\Request;
 class CategoriesController extends Controller
 {
     public function newCategory(Request $request)
-    {
+    {   
+        $request->validate([
+            'category_name' => 'required|unique:categories,category_name']);
+
         Category::create([
             'category_name' => $request->category_name
         ]);
@@ -24,6 +27,14 @@ class CategoriesController extends Controller
         ]);
 
         return back();
+    }
+
+    public function deleteCategory($category_id)
+    {
+        $category = Category::findOrFail($category_id);
+        $category->delete();
+
+        return redirect()->back()->with('success', 'Kategori Berhasil Dihapus');
     }
 
     public function index()
