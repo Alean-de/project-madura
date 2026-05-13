@@ -2,13 +2,15 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ProdukController;
+use App\Http\Controllers\CategoriesController;
+use App\Http\Controllers\ProductController;
+
 
 Route::middleware('guest')->group(function () {
     
     Route::get('/login', [AuthController::class, 'login'])
     ->name('login');
-    Route::post('/login', [AuthController::class, 'processlogin']);
+    Route::post('/login', [AuthController::class, 'processLogin']);
 
     Route::get('/register', [AuthController::class, 'register']);
     Route::post('/register', [AuthController::class, 'processRegister']);
@@ -25,15 +27,13 @@ Route::middleware('auth')->group(function () {
         return view('daftar_stok');
     });
 
-    Route::get('/kategori', function () {
-        return view('kategori');
-    });
+    Route::get('/kategori', [CategoriesController::class, 'index'])->name('kategori.index');
 
     Route::get('/pre_order', function () {
         return view('pre_order');
     });
 
-    Route::get('/produk', [ProdukController::class, 'index'])->name('produk.index');
+    Route::get('/produk', [ProductController::class, 'index'])->name('produk.index');
 
     Route::get('/profile', function () {
         return view('profile');
@@ -43,13 +43,18 @@ Route::middleware('auth')->group(function () {
         return view('supplier');
     });
 
-    Route::post('/produk/simpan', [ProdukController::class, 'store'])->name('produk.store');
+    Route::post('/produk/simpan', [ProductController::class, 'store'])->name('produk.store');
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::delete('/produk/{id}', [ProdukController::class, 'destroy'])->name('produk.destroy');
+    Route::post('/kategori/simpan', [CategoriesController::class, 'newCategory'])->name('kategori.newKategori');
+
+    Route::delete('/produk/{id}', [ProductController::class, 'destroy'])->name('produk.destroy');
+    Route::delete('/category/{category_id}', [CategoriesController::class, 'deleteCategory'])->name('category.deleteCategory');
     
-    Route::put('/product{id}', [ProdukController::class, 'update'])->name('produk.update');
+    Route::put('/product{id}', [ProductController::class, 'update'])->name('produk.update');
+
+    Route::patch('/category/{id}/status', [CategoriesController::class, 'updateStatus'])->name('category.updateStatus');
 });
    
 

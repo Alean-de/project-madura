@@ -26,7 +26,7 @@ class User extends Authenticatable
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed', //Password hashing untuk keamanan password
+            'password' => 'hashed', //Password hashing untuk keamanan password di database
         ];
     }
 }

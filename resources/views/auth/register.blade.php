@@ -13,8 +13,8 @@
             
             <h4 class="text-center mb-4">Pendaftaran</h4>
 
-            <form action="" method="POST">
-                @csrf
+                <form action="/register" method="POST">
+                    @csrf
 
                 <input type="text" name="name" placeholder="Nama" class="form-control mb-3" required>
 

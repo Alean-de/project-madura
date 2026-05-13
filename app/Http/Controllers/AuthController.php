@@ -67,10 +67,4 @@ class AuthController extends Controller
         return back()->with('error', 'Email atau Password salah');
     }
 
-    public function dashboard()
-    {
-        return view('dashboard', [
-            'user' => Auth::user()
-        ]);
-    }
 }

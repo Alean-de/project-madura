@@ -9,7 +9,7 @@
                 
                 <h4 class="text-center mb-4">Login</h4>
 
-                <form action="" method="POST">
+                <form action="/login" method="POST">
                     @csrf
 
                     <label for="email">Email</label>
