@@ -53,7 +53,7 @@
             @foreach ($category as $c)
             <tr>
                 <td>{{ $c->category_name }}</td>
-                <td>{{ $c->products_count }}</td>
+                <td>{{ $c->product_count }}</td>
                 <td>
                     <form action="{{ route('category.updateStatus', $c->category_id) }}" method="POST">
                         @csrf

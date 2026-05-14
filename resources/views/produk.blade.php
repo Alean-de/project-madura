@@ -39,8 +39,8 @@
             <tr>
                 <td>{{ $p->product_name }}</td>    
                 <td>{{ $p->category->category_name }}</td>
-                <td>{{ $p->supplier_id }}</td>
-                <td>Rp {{ number_format($p->purchase_price, 0, ',', '.') }}</td>
+                <td>{{ $p->supplier->supplier_name }}</td>
+                <td>Rp {{ number_format($p->selling_price, 0, ',', '.') }}</td>
                 <td>{{ $p->minimum_stock }}</td> 
                 <td>{{ $p->unit }}</td>
                 <td>
@@ -99,8 +99,12 @@
                                             </select>
 
                                             <select value="{{ $p->supplier_id }}" name="supplier" id="supplier" class="form-select mb-3" required>
-                                                <option value="" selected disabled>Pilih Supplier</option>
-                                                <option value="1">PT.XYZ</option>
+                                                <option value="" selected disabled>Pilih Kategori</option>
+                                                @foreach ($supplier as $s)
+                                                    <option value="{{ $s->supplier_id }}">
+                                                        {{ $s->supplier_name }}
+                                                    </option>
+                                                @endforeach
                                             </select>
 
                                             <input type="number" min="0" step="1" value="{{ $p->purchase_price }}" name="harga_beli" placeholder="Harga Beli" class="form-control mb-3" required>
@@ -144,7 +148,7 @@
 
                         <select name="category_id" id="kategori" class="form-select mb-3" required>
                             <option value="" selected disabled>Pilih Kategori</option>
-                            @foreach ($category as $c)
+                            @foreach ($category as $c)  
                                 <option value="{{ $c->category_id }}">
                                      {{ $c->category_name }}
                                 </option>
@@ -153,7 +157,11 @@
 
                         <select name="supplier_id" id="supplier" class="form-select mb-3" required>
                             <option value="" selected disabled>Pilih Supplier</option>
-                            <option value="1">PT.XYZ</option>
+                            @foreach ($supplier as $s)
+                                <option value="{{ $s->supplier_id }}">
+                                     {{ $s->supplier_name }}
+                                </option>
+                            @endforeach
                         </select>
 
                         <input type="number" min="0" step="1" name="purchase_price" placeholder="Harga Beli" class="form-control mb-3" required>

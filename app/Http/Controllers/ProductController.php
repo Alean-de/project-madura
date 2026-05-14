@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Supplier;
 
 class ProductController extends Controller
 {
@@ -15,13 +16,23 @@ class ProductController extends Controller
             'selling_price' => 'required|numeric'
         ]);
 
-        Product::create($request->all());
+        Product::create([
+            'user_id' => auth()->id(),
+            'product_name' => $request->product_name,
+            'category_id' => $request->category_id,
+            'supplier_id' => $request->supplier_id,
+            'purchase_price' => $request->purchase_price,
+            'selling_price' => $request->selling_price,
+            'initial_stock' => $request->initial_stock,
+            'minimum_stock' => $request->minimum_stock,
+            'unit' => $request->unit,
+        ]);
         return redirect()->back()->with('success', 'Produk Berhasil Ditambahkan');
     }
 
     public function destroy(int $id)
     {
-        $produk = Product::findOrFail($id);
+        $produk = Product::where('user_id', auth()->id())->findOrFail($id);
         $produk->delete();
 
         return redirect()->back()->with('success', 'Produk Berhasil Dihapus');
@@ -29,7 +40,7 @@ class ProductController extends Controller
 
     public function update(Request $request, int $id)
     {
-        $produk = Product::findOrFail($id);
+        $produk = Product::where('user_id', auth()->id())->findOrFail($id); 
         
          $produk->update([
             'nama_produk'  => $request->nama_produk,
@@ -46,10 +57,17 @@ class ProductController extends Controller
 
     public function index()
     {
-        $product = Product::all();
-        $category = Category::where('status', true)->get();
+        $product = Product::where('user_id', auth()->id())->get();
 
-        return view('produk', compact('product', 'category'));
+        $category = Category::where('user_id', auth()->id())
+                    ->where('status', true)
+                    ->get();
+
+        $supplier = Supplier::where('user_id', auth()->id())
+                    ->where('status', true)
+                    ->get();
+
+        return view('produk', compact('product', 'category', 'supplier'));
     }
     
 }

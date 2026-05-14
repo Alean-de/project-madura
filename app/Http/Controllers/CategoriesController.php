@@ -13,6 +13,7 @@ class CategoriesController extends Controller
             'category_name' => 'required|unique:categories,category_name']);
 
         Category::create([
+            'user_id' => auth()->id(),
             'category_name' => $request->category_name
         ]);
         return redirect()->back()->with('success', 'Kategori Berhasil Dibuat');
@@ -20,7 +21,7 @@ class CategoriesController extends Controller
 
     public function updateStatus(Request $request, $category_id)
     {
-        $category = Category::findOrFail($category_id);
+        $category = Category::where('user_id', auth()->id())->findOrFail($category_id);
 
         $category->update([
             'status' => $request->status
@@ -31,7 +32,7 @@ class CategoriesController extends Controller
 
     public function deleteCategory($category_id)
     {
-        $category = Category::findOrFail($category_id);
+        $category = Category::where('user_id', auth()->id())->findOrFail($category_id);
         $category->delete();
 
         return redirect()->back()->with('success', 'Kategori Berhasil Dihapus');
@@ -39,7 +40,8 @@ class CategoriesController extends Controller
 
     public function index()
     {
-        $category = Category::withCount('products')->get();
+        $category = Category::where('user_id', auth()->id())
+            ->withCount('product')->get();
 
         return view('kategori', compact('category'));
     }

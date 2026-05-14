@@ -22,11 +22,28 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
+    protected $primaryKey = 'user_id';
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed', //Password hashing untuk keamanan password di database
         ];
+    }
+
+    public function product()
+    {
+        return $this->hasMany(Product::class, 'user_id', 'user_id');
+    }
+
+    public function category()
+    {
+        return $this->hasMany(Category::class, 'user_id', 'user_id');
+    }
+    
+    public function supplier()
+    {
+        return $this->hasMany(Supplier::class, 'user_id', 'user_id');
     }
 }
