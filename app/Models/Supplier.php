@@ -4,21 +4,22 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Category extends Model
+class Supplier extends Model
 {
-    protected $table = 'categories';
-    protected $primaryKey = 'category_id';
+    protected $primaryKey = 'supplier_id';
 
     protected $fillable = [
         'user_id',
-        'category_id',
-        'category_name',
-        'status'
+        'supplier_id',
+        'supplier_name',
+        'contacts',
+        'city',
+        'status',
     ];
 
     public function product()
     {
-        return $this->hasMany(Product::class, 'category_id', 'category_id');
+        return $this->hasMany(Supplier::class, 'supplier_id', 'supplier_id');
     }
 
     public function user()
