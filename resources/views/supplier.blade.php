@@ -16,7 +16,7 @@
 
 </div>
 
-<form action="{{ route('supplier.newSupplier') }}" method="POST" id="formBuatSupplier">
+<form action="{{ route('supplier.create') }}" method="POST" id="formBuatSupplier">
     @csrf 
     <div class="modal fade" id="supplierModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -60,7 +60,7 @@
                 <td>{{ preg_replace('/(\d{4})(\d{4})(\d{4})/', '$1-$2-$3', $s->contacts) }}</td>
                 <td>{{ $s->city }}</td>
                 <td>
-                    <form action="{{ route('supplier.updateStatus', $s->supplier_id) }}" method="POST">
+                    <form action="{{ route('supplier.status', $s->supplier_id) }}" method="POST">
                         @csrf
                         @method('PATCH')
                         <select name="status" onchange="this.form.submit()" class="form-control">
@@ -75,7 +75,7 @@
                     </button>
 
                     <!-- DELETE -->
-                    <form action="{{ route('category.deleteSupplier', $s->supplier_id) }}" method="POST">
+                    <form action="{{ route('supplier.delete', $s->supplier_id) }}" method="POST">
                         @csrf
                         @method('DELETE')
 
@@ -113,7 +113,7 @@
                         </div>
                     </form>
 
-                    <form action="{{ route('supplier.updateData', $s->supplier_id) }}" method="POST">
+                    <form action="{{ route('supplier.update', $s->supplier_id) }}" method="POST">
                         @csrf
                         @method('PUT')
                         <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editSupplierModal{{ $s->supplier_id }}">

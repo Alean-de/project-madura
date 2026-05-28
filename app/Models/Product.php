@@ -21,18 +21,23 @@ class Product extends Model
         'unit'
     ];
 
-    public function category()
+    public function categories()
     {
         return $this->belongsTo(Category::class, 'category_id', 'category_id');
     }
 
-    public function supplier()
+    public function suppliers()
     {
         return $this->belongsTo(Supplier::class, 'supplier_id', 'supplier_id');
     }
 
-    public function user()
+    public function users()
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
+    }
+
+    public function scopeOwned($query)
+    {
+        return $query->where('user_id', auth()->id());
     }
 }

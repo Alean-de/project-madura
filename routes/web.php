@@ -7,58 +7,123 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\SupplierController;
 
 
+/*
+|--------------------
+|   Guest Routes 
+|--------------------
+*/
+
 Route::middleware('guest')->group(function () {
     
-    Route::get('/login', [AuthController::class, 'login'])
-    ->name('login');
+    Route::get('/login', [AuthController::class, 'login']);
+
     Route::post('/login', [AuthController::class, 'processLogin']);
 
     Route::get('/register', [AuthController::class, 'register']);
+
     Route::post('/register', [AuthController::class, 'processRegister']);
 
 });
 
+/*
+|----------------------------
+|   Authenticated Routes
+|---------------------------- 
+*/
+
 Route::middleware('auth')->group(function () {
-    
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    });
 
-    Route::get('/daftar_stok', function () {
-        return view('daftar_stok');
-    });
+    /*
+    |-------------------- 
+    |   Static Views
+    |-------------------- 
+    */ 
 
-    Route::get('/kategori', [CategoriesController::class, 'index'])->name('kategori.index');
+    Route::view('/dashboard', 'dashboard')
+        ->name('dashboard');
 
-    Route::get('/pre_order', function () {
-        return view('pre_order');
-    });
+    Route::view('/daftar_stok', 'daftar_stok')
+        ->name('stok.index');
 
-    Route::get('/produk', [ProductController::class, 'index'])->name('produk.index');
+    Route::view('/pre_order', 'pre_order')
+        ->name('preorder.index');
 
-    Route::get('/profile', function () {
-        return view('profile');
-    });
+    Route::view('/profile', 'profile')
+        ->name('profile');
 
-    Route::get('/supplier', [SupplierController::class, 'index'])->name('supplier.index');
-
-    Route::post('/produk/simpan', [ProductController::class, 'store'])->name('produk.store');
+    /*
+    |--------------
+    |   Logout 
+    |--------------
+    */
 
     Route::post('/logout', [AuthController::class, 'logout']);
 
-    Route::post('/kategori/simpan', [CategoriesController::class, 'newCategory'])->name('kategori.newKategori');
+    /*
+    |----------------------
+    |   Product Routes
+    |----------------------
+    */
 
-    Route::post('/supplier/simpan', [SupplierController::class, 'newSupplier'])->name('supplier.newSupplier');
+    Route::prefix('product')->name('product.')->group(function (){
 
-    Route::delete('/produk/{id}', [ProductController::class, 'destroy'])->name('produk.destroy');
-    Route::delete('/category/{category_id}', [CategoriesController::class, 'deleteCategory'])->name('category.deleteCategory');
-    Route::delete('/supplier/{supplier_id}', [SupplierController::class, 'deleteSupplier'])->name('category.deleteSupplier');
+        Route::get('/', [ProductController::class, 'index'])
+            ->name('index');
+
+        Route::post('/create', [ProductController::class, 'create'])
+            ->name('create');
+            
+        Route::put('/{product_id}', [ProductController::class, 'update'])
+            ->name('update');
+
+        Route::delete('/{product_id}', [ProductController::class, 'delete'])
+            ->name('delete');
+
+    });
+
+    /*
+    |------------------------
+    |   Category Routes
+    |------------------------
+    */
     
-    Route::put('/product{id}', [ProductController::class, 'update'])->name('produk.update');
-    Route::put('/supplier{id}', [SupplierController::class, 'updateData'])->name('supplier.updateData');
+    Route::prefix('category')->name('category.')->group(function (){
 
-    Route::patch('/category/{id}/status', [CategoriesController::class, 'updateStatus'])->name('category.updateStatus');
-    Route::patch('/supplier/{id}/status', [SupplierController::class, 'updateStatus'])->name('supplier.updateStatus');
+        Route::get('/', [CategoriesController::class, 'index'])
+            ->name('index');
+
+        Route::post('/create', [CategoriesController::class, 'create'])
+            ->name('create');
+            
+        Route::patch('/{category_id}/status', [CategoriesController::class, 'status'])
+            ->name('status');
+        
+    });
+
+    /*
+    |------------------------
+    |   Supplier Routes
+    |------------------------
+    */
+
+    Route::prefix('supplier')->name('supplier.')->group(function (){
+
+        Route::get('/', [SupplierController::class, 'index'])
+            ->name('index');
+
+        Route::post('/create', [SupplierController::class, 'create'])
+            ->name('create');
+            
+        Route::put('/{supplier_id}', [SupplierController::class, 'update'])
+            ->name('update');
+            
+        Route::patch('/{supplier_id}/status', [SupplierController::class, 'status'])
+            ->name('status');
+            
+        Route::delete('/{supplier_id}', [SupplierController::class, 'delete'])
+            ->name('delete');
+            
+    });
 });
    
 

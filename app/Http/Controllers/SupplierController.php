@@ -4,14 +4,32 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Supplier;
+use Illuminate\Validation\Rule;
 
 class SupplierController extends Controller
 {
-    public function newSupplier(Request $request)
+    public function create(Request $request)
     {   
         $request->validate([
-            'supplier_name' => 'required',
-            'contacts' =>'required'   
+            'supplier_name' => [
+                'required',
+                'max:255',
+
+                Rule::unique('suppliers', 'supplier_name')
+                ->where(function ($query) {
+                    return $query->where('user_id', auth()->id());
+                })
+                
+            ],
+
+            'contacts' => [
+                'required',
+            
+                Rule::unique('suppliers', 'contacts')
+                ->where(function ($query) {
+                    return $query->where('user_id', auth()->id());
+                })
+            ]  
         ]);
 
         Supplier::create([
@@ -23,15 +41,15 @@ class SupplierController extends Controller
         return redirect()->back()->with('success', 'Supplier Berhasil Dibuat');
     }
 
-    public function deleteSupplier($supplier_id)
+    public function delete($supplier_id)
     {
-        $supplier = Supplier::where('user_id', auth()->id())->findOrFail($supplier_id);
+        $supplier = Supplier::owned()->findOrFail($supplier_id);
         $supplier->delete();
 
         return redirect()->back()->with('success', 'Kategori Berhasil Dihapus');
     }
 
-    public function updateStatus(Request $request, $supplier_id)
+    public function status(Request $request, $supplier_id)
     {
         $supplier = Supplier::findOrFail($supplier_id);
 
@@ -42,9 +60,9 @@ class SupplierController extends Controller
         return back();
     }
 
-    public function updateData(Request $request, int $supplier_id)
+    public function update(Request $request, int $supplier_id)
     {
-        $produk = Supplier::where('user_id', auth()->id())->findOrFail($supplier_id);
+        $produk = Supplier::owned()->findOrFail($supplier_id);
         
         $produk->update([
             'supplier_name'  => $request->supplier_name,
@@ -57,7 +75,7 @@ class SupplierController extends Controller
 
      public function index()
     {
-        $supplier = Supplier::where('user_id', auth()->id())->get();
+        $supplier = Supplier::owned()->get();
 
         return view('supplier', compact('supplier'));
     }

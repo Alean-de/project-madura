@@ -4,13 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CategoriesController extends Controller
 {
-    public function newCategory(Request $request)
+    public function create(Request $request)
     {   
         $request->validate([
-            'category_name' => 'required|unique:categories,category_name']);
+            'category_name' => [
+                'required',
+                'max:255',
+            
+            Rule::unique('categories')
+                ->where(function ($query) {
+                    return $query->where('user_id', auth()->id());
+                })
+            ]
+        ]);
 
         Category::create([
             'user_id' => auth()->id(),
@@ -19,9 +29,9 @@ class CategoriesController extends Controller
         return redirect()->back()->with('success', 'Kategori Berhasil Dibuat');
     }
 
-    public function updateStatus(Request $request, $category_id)
+    public function status(Request $request, $category_id)
     {
-        $category = Category::where('user_id', auth()->id())->findOrFail($category_id);
+        $category = Category::owned()->findOrFail($category_id);
 
         $category->update([
             'status' => $request->status
@@ -30,19 +40,12 @@ class CategoriesController extends Controller
         return back();
     }
 
-    public function deleteCategory($category_id)
-    {
-        $category = Category::where('user_id', auth()->id())->findOrFail($category_id);
-        $category->delete();
-
-        return redirect()->back()->with('success', 'Kategori Berhasil Dihapus');
-    }
-
     public function index()
     {
-        $category = Category::where('user_id', auth()->id())
-            ->withCount('product')->get();
+        $category = Category::owned()
+            ->withCount('products')
+            ->get();
 
-        return view('kategori', compact('category'));
+        return view('category', compact('category'));
     }
 }

@@ -38,13 +38,13 @@
             @foreach ($product as $p)
             <tr>
                 <td>{{ $p->product_name }}</td>    
-                <td>{{ $p->category->category_name }}</td>
-                <td>{{ $p->supplier->supplier_name }}</td>
+                <td>{{ $p->categories->category_name }}</td>
+                <td>{{ $p->suppliers->supplier_name }}</td>
                 <td>Rp {{ number_format($p->selling_price, 0, ',', '.') }}</td>
                 <td>{{ $p->minimum_stock }}</td> 
                 <td>{{ $p->unit }}</td>
                 <td>
-                    <form action="{{ route('produk.destroy', $p->product_id) }}" method="POST">
+                    <form action="{{ route('product.delete', $p->product_id) }}" method="POST">
                         @csrf
                         @method('DELETE')
                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $p->product_id }}">
@@ -70,7 +70,7 @@
                         </div>
                     </form>
 
-                    <form action="{{ route('produk.update', $p->product_id) }}" method="POST">
+                    <form action="{{ route('product.update', $p->product_id) }}" method="POST">
                         @csrf
                         @method('PUT')
                         <button type="button" class="btn btn-warning" data-bs-toggle="modal" data-bs-target="#editModal{{ $p->product_id }}">
@@ -132,7 +132,7 @@
     </table>
 </div>
 
-<form action="{{ route('produk.store') }}" method="POST" id="formTambahProduk">
+<form action="{{ route('product.create') }}" method="POST" id="formTambahProduk">
     @csrf 
     <div class="modal fade" id="inputModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -168,9 +168,9 @@
                             
                         <input type="number" min="0" step="1" name="selling_price" placeholder="Harga Jual" class="form-control mb-3" required>
                         
-                        <input type="text" name="initial_stock" placeholder="Stok Awal" class="form-control mb-3" required>
+                        <input type="number" name="initial_stock" placeholder="Stok Awal" class="form-control mb-3" required>
 
-                        <input type="text" name="minimum_stock" placeholder="Stok Minimum" class="form-control mb-3" required>
+                        <input type="number" name="minimum_stock" placeholder="Stok Minimum" class="form-control mb-3" required>
                             
                         <input type="text" name="unit" placeholder="Satuan" class="form-control mb-3" required>   
                 </div>

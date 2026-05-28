@@ -16,13 +16,18 @@ class Category extends Model
         'status'
     ];
 
-    public function product()
+    public function products()
     {
         return $this->hasMany(Product::class, 'category_id', 'category_id');
     }
 
-    public function user()
+    public function users()
     {
         return $this->belongsTo(User::class, 'user_id', 'user_id');
+    }
+
+    public function scopeOwned($query)
+    {
+        return $query->where('user_id', auth()->id());
     }
 }

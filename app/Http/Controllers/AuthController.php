@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-
+    
 class AuthController extends Controller
 {
     // Menampilkan view
@@ -29,7 +29,7 @@ class AuthController extends Controller
         
         return redirect('/login');
     }
-    
+
     // Proses input user
     public function processRegister(Request $request)
     {
@@ -57,7 +57,9 @@ class AuthController extends Controller
             'password' => 'required'
         ]);
 
-        if (Auth::attempt($credentials)) {
+        $remember = $request->has('remember');
+        
+        if (Auth::attempt($credentials, $remember)) {
             
             $request->session()->regenerate();
 

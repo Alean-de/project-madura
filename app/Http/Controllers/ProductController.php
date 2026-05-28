@@ -9,11 +9,13 @@ use App\Models\Supplier;
 
 class ProductController extends Controller
 {
-    public function store(Request $request)
+    public function create(Request $request)
     {
         $request->validate([
-            'product_name' => 'required|unique:products,product_name',
-            'selling_price' => 'required|numeric'
+            'product_name' => 'required|unique:products,product_name|max:255',
+            'category_id' => 'required|exists:categories,category_id',
+            'supplier_id' => 'required|exists:suppliers,supplier_id',
+            'selling_price' => 'required|numeric|min:0'
         ]);
 
         Product::create([
@@ -30,9 +32,9 @@ class ProductController extends Controller
         return redirect()->back()->with('success', 'Produk Berhasil Ditambahkan');
     }
 
-    public function destroy(int $id)
+    public function delete(int $id)
     {
-        $produk = Product::where('user_id', auth()->id())->findOrFail($id);
+        $produk = Product::owned()->findOrFail($id);
         $produk->delete();
 
         return redirect()->back()->with('success', 'Produk Berhasil Dihapus');
@@ -40,7 +42,7 @@ class ProductController extends Controller
 
     public function update(Request $request, int $id)
     {
-        $produk = Product::where('user_id', auth()->id())->findOrFail($id); 
+        $produk = Product::owned()->findOrFail($id); 
         
          $produk->update([
             'nama_produk'  => $request->nama_produk,
@@ -52,22 +54,31 @@ class ProductController extends Controller
             'satuan'       => $request->satuan,
         ]);
 
-        return redirect()->route('produk.index')->with('success', 'Produk berhasil diperbarui!');
+        return redirect()->route('product.index')->with('success', 'Produk berhasil diperbarui!');
     }
 
     public function index()
     {
-        $product = Product::where('user_id', auth()->id())->get();
+        $product = Product::owned()
+                    ->with([
+                        'categories' => function($query) {
+                            $query->where('status', true);
+                        },
+                        'suppliers' => function($query) {
+                            $query->where('status', true);
+                        }
+                    ])
+                    ->get();
 
-        $category = Category::where('user_id', auth()->id())
+        $category = Category::owned()
                     ->where('status', true)
                     ->get();
 
-        $supplier = Supplier::where('user_id', auth()->id())
+        $supplier = Supplier::owned()
                     ->where('status', true)
                     ->get();
 
-        return view('produk', compact('product', 'category', 'supplier'));
+        return view('product', compact('product', 'category', 'supplier'));
     }
     
 }

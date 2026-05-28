@@ -12,13 +12,13 @@ style="width: 250px; background-color: #1B3C53">
         </li>
 
         <li class="nav-item mb-2">
-            <a href="/produk" class="nav-link text-white">
+            <a href="/product" class="nav-link text-white">
                 Produk
             </a>
         </li>
 
         <li class="nav-item mb-2">
-            <a href="/kategori" class="nav-link text-white">
+            <a href="{{ route('category.index') }}" class="nav-link text-white">
                 Kategori
             </a>
         </li>

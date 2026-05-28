@@ -6,6 +6,196 @@
 @source '../**/*.js';
 
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Poppins', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* =========================
+   GLOBAL
+========================= */
+
+body{
+    background-color: #f5f5f5;
+    font-family: 'Poppins', sans-serif;
+}
+
+/* =========================
+   SIDEBAR
+========================= */
+
+.sidebar-custom{
+    background: #123552;
+    min-height: 100vh;
+}
+
+.sidebar-link{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    color: #d8d8d8;
+    text-decoration: none;
+
+    padding: 14px 18px;
+    margin-bottom: 10px;
+
+    border-radius: 14px;
+
+    font-size: 18px;
+    font-weight: 500;
+
+    transition: 0.2s ease-in-out;
+}
+
+.sidebar-link:hover{
+    background: white;
+    color: #123552;
+}
+
+.active-sidebar{
+    background: white;
+    color: #123552 !important;
+    font-weight: 600;
+}
+
+/* =========================
+   BUTTON
+========================= */
+
+.btn-po{
+    background: #123552;
+    color: white;
+
+    border: none;
+    border-radius: 12px;
+
+    padding: 12px 28px;
+
+    font-weight: 500;
+
+    transition: 0.2s ease-in-out;
+}
+
+.btn-po:hover{
+    background: #0e2b44;
+    color: white;
+}
+
+/* =========================
+   INPUT
+========================= */
+
+.input-custom{
+    border-radius: 12px !important;
+    padding: 12px 16px !important;
+
+    border: 1px solid #d9d9d9 !important;
+
+    box-shadow: none !important;
+}
+
+.input-custom:focus{
+    border-color: #123552 !important;
+    box-shadow: none !important;
+}
+
+/* =========================
+   TABLE
+========================= */
+
+.table-head-custom{
+    background: #f8efef;
+}
+
+.table th{
+    padding: 22px 20px !important;
+
+    font-size: 22px;
+    font-weight: 600;
+
+    color: #5a5a5a;
+
+    border-bottom: 1px solid #e8e8e8;
+}
+
+.table td{
+    padding: 24px 20px !important;
+
+    font-size: 18px;
+    font-weight: 500;
+
+    vertical-align: middle;
+}
+
+/* =========================
+   CARD
+========================= */
+
+.card{
+    border-radius: 20px !important;
+}
+
+/* =========================
+   BADGE
+========================= */
+
+.badge{
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+/* =========================
+   STATUS COLORS
+========================= */
+
+.bg-success{
+    background-color: #006400 !important;
+}
+
+.bg-warning{
+    background-color: #f4c400 !important;
+}
+
+.bg-danger{
+    background-color: #c40000 !important;
+}
+
+/* =========================
+   TITLE
+========================= */
+
+.page-title{
+    font-size: 42px;
+    font-weight: 700;
+    color: #111;
+}
+
+.page-subtitle{
+    color: #8b8b8b;
+    font-size: 17px;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media(max-width: 768px){
+
+    .sidebar-custom{
+        min-height: auto;
+    }
+
+    .table th{
+        font-size: 16px;
+    }
+
+    .table td{
+        font-size: 15px;
+    }
+
+    .page-title{
+        font-size: 30px;
+    }
+
 }
