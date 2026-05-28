@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
     
     Route::put('/product{id}', [ProductController::class, 'update'])->name('produk.update');
     Route::put('/supplier{id}', [SupplierController::class, 'updateData'])->name('supplier.updateData');
+    Route::put('/kategori/{id}', [CategoriesController::class, 'update'])->name('kategori.update');
 
     Route::patch('/category/{id}/status', [CategoriesController::class, 'updateStatus'])->name('category.updateStatus');
     Route::patch('/supplier/{id}/status', [SupplierController::class, 'updateStatus'])->name('supplier.updateStatus');
