@@ -45,4 +45,16 @@ class CategoriesController extends Controller
 
         return view('kategori', compact('category'));
     }
+    
+    public function update(Request $request, $id)
+    {
+        $category = Category::findOrFail($id);
+
+        $category->update([
+        'category_name' => $request->category_name,
+        'product_count' => $request->product_count,
+        'status' => $request->status,]);
+
+        return redirect()->back()->with('success', 'Kategori berhasil diupdate');
+    }
 }
