@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\SupplierController;
 
 
@@ -15,7 +16,7 @@ use App\Http\Controllers\SupplierController;
 
 Route::middleware('guest')->group(function () {
     
-    Route::get('/login', [AuthController::class, 'login']);
+    Route::get('/', [AuthController::class, 'login']);
 
     Route::post('/login', [AuthController::class, 'processLogin']);
 
@@ -124,6 +125,20 @@ Route::middleware('auth')->group(function () {
             ->name('delete');
             
     });
+
+    /*
+    |------------------------------
+    |   Purchase Order Routes
+    |------------------------------
+    */
+
+    Route::prefix('purchaseOrder')->name('po.')->group(function (){
+
+        Route::get('/', [PurchaseOrderController::class, 'index']);
+        Route::post('/store', [PurchaseOrderController::class, 'store'])->name('store');
+
+    });
+
 });
    
 

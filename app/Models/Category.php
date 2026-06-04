@@ -10,10 +10,10 @@ class Category extends Model
     protected $primaryKey = 'category_id';
 
     protected $fillable = [
-        'user_id',
-        'category_id',
-        'category_name',
-        'status'
+    'user_id',
+    'category_name',
+    'product_count',
+    'status'
     ];
 
     public function products()
