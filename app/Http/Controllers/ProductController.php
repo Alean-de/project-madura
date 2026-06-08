@@ -6,70 +6,52 @@ use Illuminate\Http\Request;
 use App\Models\Product;
 use App\Models\Category;
 use App\Models\Supplier;
+use App\Model\InventoryAdjustment;
 
 class ProductController extends Controller
 {
-    public function index(Request $request)
+   public function index(Request $request)
     {
         $query = Product::owned()->with([
-            'categories' => function ($q) {
-                $q->where('status', true);
-            },
-            'suppliers' => function ($q) {
-                $q->where('status', true);
-            }
+            'categories' => fn($q) => $q->where('status', true),
+            'suppliers' => fn($q) => $q->where('status', true)
         ]);
 
-            // SEARCH
-        if ($request->filled('search')) {
-            $search = $request->search;
+        $query->when($request->filled('search'), function ($q) use ($request) {
+            $q->where('product_name', 'like', "%{$request->search}%");
+        });
 
-            $query->where('product_name', 'like', "%{$search}%");
-        }
+        $query->when($request->filled('category_id'), function ($q) use ($request) {
+            $q->where('category_id', $request->category_id);
+        });
 
-        // FILTER CATEGORY
-        if ($request->filled('category_id')) {
-            $query->where('category_id', $request->category_id);
-        }
+        $query->when($request->filled('supplier_id'), function ($q) use ($request) {
+            $q->where('supplier_id', $request->supplier_id);
+        });
 
-        // FILTER SUPPLIER
-        if ($request->filled('supplier_id')) {
-            $query->where('supplier_id', $request->supplier_id);
-        }
-
-        // FILTER STOCK
-        if ($request->filled('stock_status')) {
-
+        $query->when($request->filled('stock_status'), function ($q) use ($request) {
             if ($request->stock_status === 'low') {
-
-                $query->whereRaw('initial_stock <= minimum_stock');
-
+                $q->whereColumn('initial_stock', '<=', 'minimum_stock');
             } elseif ($request->stock_status === 'safe') {
-
-                $query->whereRaw('initial_stock > minimum_stock');
-
+                $q->whereColumn('initial_stock', '>', 'minimum_stock');
             }
-        }
+        });
 
-        $products = $query
-            ->latest()
-            ->paginate(10);
+        $products = $query->latest()->paginate(10);
 
+        // 3. JIKA AJAX / JSON: Langsung return di sini (Hemat Query Kategori & Supplier!)
         if ($request->ajax() || $request->wantsJson()) {
-
             return response()->json([
                 'success' => true,
                 'data' => $products
             ]);
         }
 
+        // 4. JIKA BUKAN AJAX: Baru ambil data untuk dropdown view
         $category = Category::owned()->where('status', true)->get();
-
         $supplier = Supplier::owned()->where('status', true)->get();
 
-        return view('product', compact(
-            'products', 'category', 'supplier'
-        ));
+        return view('product', compact('products', 'category', 'supplier'));
     }
 
     public function create(Request $request)
@@ -117,6 +99,29 @@ class ProductController extends Controller
             'message' => 'Produk berhasil diperbarui!',
             'data'    => $produk
         ], 200);
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:barang_masuk,rusak,exp,barang_keluar,pending',
+        ]);
+
+        try {
+            $adjustment = InventoryAdjustment::findOrFail($id);
+            $adjustment->status = $request->status;
+            $adjustment->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Status berhasil diubah secara real-time.'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan database.'
+            ], 500);
+        }
     }
 
     public function delete(int $id)

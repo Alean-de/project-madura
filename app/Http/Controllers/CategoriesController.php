@@ -46,6 +46,8 @@ class CategoriesController extends Controller
             ->withCount('products')
             ->get();
 
+        // dd($category->pluck('products_count', 'category_name')->toArray());
+
         return view('category', compact('category'));
     }
     

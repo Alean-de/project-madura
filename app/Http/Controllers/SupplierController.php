@@ -8,6 +8,13 @@ use Illuminate\Validation\Rule;
 
 class SupplierController extends Controller
 {
+    public function index()
+    {
+        $supplier = Supplier::owned()->get();
+
+        return view('supplier', compact('supplier'));
+    }
+
     public function create(Request $request)
     {   
         $request->validate([
@@ -73,10 +80,4 @@ class SupplierController extends Controller
         return redirect()->route('supplier.index')->with('success', 'Produk berhasil diperbarui!');
     }
 
-     public function index()
-    {
-        $supplier = Supplier::owned()->get();
-
-        return view('supplier', compact('supplier'));
-    }
 }

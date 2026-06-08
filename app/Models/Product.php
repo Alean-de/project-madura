@@ -36,6 +36,11 @@ class Product extends Model
         return $this->belongsTo(User::class, 'user_id', 'user_id');
     }
 
+    public function detailPo()
+    {
+        return $this->hasMany(DetailPo::class, 'product_id', 'product_id');
+    }
+
     public function scopeOwned($query)
     {
         return $query->where('user_id', auth()->id());

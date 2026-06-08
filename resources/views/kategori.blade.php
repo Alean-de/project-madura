@@ -3,445 +3,149 @@
 @section('title', 'Kategori')
 
 @section('content')
-
-<div>
+<div class="container-fluid px-3 py-2">
 
     {{-- HEADER --}}
     <div class="d-flex justify-content-between align-items-center mb-4">
-
         <div>
-
-            <h3 class="fw-bold mb-1">
-                Kategori
-            </h3>
-
-            <small class="text-muted">
-                Kelola kategori produk
-            </small>
-
+            <h3 class="fw-extrabold text-dark tracking-tight mb-1">Kategori Produk</h3>
+            <p class="text-muted small mb-0">Kelola pengelompokan produk, kontrol status aktif, dan pantau volume persebaran barang.</p>
         </div>
 
-        {{-- BUTTON TAMBAH --}}
-        <button
-            type="button"
-            class="btn text-white px-4"
-            style="background-color: #17354D;"
-            data-bs-toggle="modal"
-            data-bs-target="#kategoriModal">
-
-            <i class="bi bi-plus-lg"></i>
-            Tambah Kategori
-
+        <button type="button" class="btn text-white px-4 py-2 border-0 rounded-3 shadow-sm d-flex align-items-center gap-2 card-hover-animate" style="background-color: #17354D;" data-bs-toggle="modal" data-bs-target="#kategoriModal">
+            <i class="bi bi-plus-lg fw-bold"></i> Tambah Kategori
         </button>
-
     </div>
 
     {{-- SEARCH --}}
     <div class="card border-0 shadow-sm rounded-4 mb-4">
-
-        <div class="card-body">
-
-            <input
-                type="text"
-                class="form-control"
-                placeholder="Cari kategori...">
-
+        <div class="card-body p-3">
+            <div class="input-group">
+                <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-search"></i></span>
+                <input type="text" class="form-control bg-light border-start-0 ps-0" placeholder="Cari nama klasifikasi kategori produk...">
+            </div>
         </div>
-
     </div>
 
     {{-- TABLE --}}
-    <div class="card border-0 shadow-sm rounded-4">
-
+    <div class="card border-0 shadow-sm rounded-4 overflow-hidden">
         <div class="card-body p-0">
-
-            <table class="table align-middle mb-0">
-
-                <thead style="background-color: #F4ECEC;">
-
-                    <tr>
-
-                        <th class="p-3">
-                            Nama Kategori
-                        </th>
-
-                        <th>
-                            Jumlah produk
-                        </th>
-
-                        <th>
-                            Status
-                        </th>
-
-                        <th class="text-center">
-                            Aksi
-                        </th>
-
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                    @foreach ($category as $c)
-
-                    <tr>
-
-                        <td class="p-3 fw-semibold">
-                            {{ $c->category_name }}
-                        </td>
-
-                        <td>
-                            {{ $c->product_count }}
-                        </td>
-
-                        <td>
-
-                            @if ($c->status)
-
-                                <span class="badge bg-success px-3 py-2">
-                                    Aktif
+            <div class="table-responsive">
+                <table class="table align-middle table-hover mb-0">
+                    <thead class="table-light text-uppercase fs-7 tracking-wider text-muted border-bottom">
+                        <tr>
+                            <th class="p-3 ps-4">Nama Kategori</th>
+                            <th class="text-center" style="width: 200px;">Jumlah Produk</th>
+                            <th class="text-center" style="width: 180px;">Status</th>
+                            <th class="text-center" style="width: 140px;">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="border-0">
+                        @foreach ($category as $c)
+                        <tr>
+                            <td class="p-3 ps-4">
+                                <span class="fw-bold text-dark">{{ $c->category_name }}</span>
+                            </td>
+                            <td class="text-center">
+                                <span class="badge bg-light text-dark border px-3 py-1.5 rounded-pill fw-semibold fs-7">
+                                    <i class="bi bi-box-seam text-secondary me-1"></i> {{ $c->products_count }} Produk
                                 </span>
-
-                            @else
-
-                                <span class="badge bg-secondary px-3 py-2">
-                                    Nonaktif
-                                </span>
-
-                            @endif
-
-                        </td>
-
-                        <td>
-
-                            <div class="d-flex justify-content-center gap-2">
-
-                                {{-- EDIT --}}
-                                <button
-                                    type="button"
-                                    class="btn btn-sm"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#editModal{{ $c->category_id }}">
-
-                                    <i class="bi bi-pencil-fill"></i>
-
-                                </button>
-
-                                {{-- DELETE --}}
-                                <button
-                                    type="button"
-                                    class="btn btn-sm"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#deleteModal{{ $c->category_id }}">
-
-                                    <i class="bi bi-trash-fill"></i>
-
-                                </button>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                    {{-- DELETE MODAL --}}
-                    <div
-                        class="modal fade"
-                        id="deleteModal{{ $c->category_id }}"
-                        tabindex="-1">
-
-                        <div class="modal-dialog modal-dialog-centered">
-
-                            <div class="modal-content border-0 rounded-4">
-
-                                <div class="modal-body p-4 text-center">
-
-                                    <h5 class="fw-bold mb-3">
-                                        Hapus Kategori
-                                    </h5>
-
-                                    <p class="text-muted">
-                                        Yakin ingin menghapus kategori ini?
-                                    </p>
-
-                                    <form
-                                        action="{{ route('category.deleteCategory', $c->category_id) }}"
-                                        method="POST">
-
-                                        @csrf
-                                        @method('DELETE')
-
-                                        <div class="d-flex justify-content-center gap-3">
-
-                                            <button
-                                                type="button"
-                                                class="btn btn-secondary"
-                                                data-bs-dismiss="modal">
-
-                                                Batal
-
-                                            </button>
-
-                                            <button
-                                                type="submit"
-                                                class="btn btn-danger">
-
-                                                Hapus
-
-                                            </button>
-
-                                        </div>
-
-                                    </form>
-
-                                </div>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    {{-- EDIT MODAL --}}
-                    <div
-                        class="modal fade"
-                        id="editModal{{ $c->category_id }}"
-                        tabindex="-1">
-
-                        <div class="modal-dialog modal-dialog-centered">
-
-                            <div class="modal-content border-0 rounded-4">
-
-                                <div class="modal-header border-0">
-
-                                    <h5 class="fw-bold">
-                                        Edit Kategori
-                                    </h5>
-
-                                    <button
-                                        type="button"
-                                        class="btn-close"
-                                        data-bs-dismiss="modal">
+                            </td>
+                            <td class="text-center">
+                                @if ($c->status)
+                                    <span class="badge bg-success-subtle text-success px-3 py-1.5 rounded-pill fw-semibold small">
+                                        ● Aktif
+                                    </span>
+                                @else
+                                    <span class="badge bg-danger-subtle text-danger px-3 py-1.5 rounded-pill fw-semibold small">
+                                        ● Nonaktif
+                                    </span>
+                                @endif
+                            </td>
+                            <td class="text-center">
+                                <div class="d-flex justify-content-center gap-1">
+                                    {{-- EDIT BUTTON --}}
+                                    <button type="button" class="btn btn-sm btn-light border-0 text-primary p-2 rounded-3" data-bs-toggle="modal" data-bs-target="#editModal{{ $c->category_id }}">
+                                        <i class="bi bi-pencil-square fs-5"></i>
                                     </button>
 
+                                    {{-- DELETE BUTTON --}}
+                                    <button type="button" class="btn btn-sm btn-light border-0 text-danger p-2 rounded-3" data-bs-toggle="modal" data-bs-target="#deleteModal{{ $c->category_id }}">
+                                        <i class="bi bi-trash3 fs-5"></i>
+                                    </button>
                                 </div>
-
-                                <form
-                                    action="{{ route('kategori.update', $c->category_id) }}"
-                                    method="POST">
-
-                                    @csrf
-                                    @method('PUT')
-
-                                    <div class="modal-body">
-
-                                        {{-- NAMA --}}
-                                        <div class="mb-3">
-
-                                            <label class="form-label">
-                                                Nama Kategori
-                                            </label>
-
-                                            <input
-                                                type="text"
-                                                name="category_name"
-                                                class="form-control"
-                                                value="{{ $c->category_name }}"
-                                                required>
-
-                                        </div>
-
-                                        {{-- JUMLAH PRODUK --}}
-                                        <div class="mb-3">
-
-                                            <label class="form-label">
-                                                Jumlah Produk
-                                            </label>
-
-                                            <input
-                                                type="number"
-                                                name="product_count"
-                                                class="form-control"
-                                                value="{{ $c->product_count }}">
-
-                                        </div>
-
-                                        {{-- STATUS --}}
-                                        <div class="mb-3">
-
-                                            <label class="form-label">
-                                                Status
-                                            </label>
-
-                                            <select
-                                                name="status"
-                                                class="form-select">
-
-                                                <option
-                                                    value="1"
-                                                    {{ $c->status ? 'selected' : '' }}>
-
-                                                    Aktif
-
-                                                </option>
-
-                                                <option
-                                                    value="0"
-                                                    {{ !$c->status ? 'selected' : '' }}>
-
-                                                    Nonaktif
-
-                                                </option>
-
-                                            </select>
-
-                                        </div>
-
-                                    </div>
-
-                                    <div class="modal-footer border-0">
-
-                                        <button
-                                            type="submit"
-                                            class="btn text-white px-4"
-                                            style="background-color: #17354D;">
-
-                                            Simpan
-
-                                        </button>
-
-                                    </div>
-
-                                </form>
-
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    @endforeach
-
-                </tbody>
-
-            </table>
-
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         </div>
-
     </div>
-
 </div>
 
 {{-- MODAL TAMBAH --}}
-<form
-    action="{{ route('kategori.newKategori') }}"
-    method="POST">
-
-    @csrf
-
-    <div
-        class="modal fade"
-        id="kategoriModal"
-        tabindex="-1">
-
-        <div class="modal-dialog modal-dialog-centered">
-
-            <div class="modal-content border-0 rounded-4">
-
-                <div class="modal-header border-0">
-
-                    <h5 class="fw-bold">
-                        Tambah Kategori
-                    </h5>
-
-                    <button
-                        type="button"
-                        class="btn-close"
-                        data-bs-dismiss="modal">
-                    </button>
-
-                </div>
-
-                <div class="modal-body">
-
-                    {{-- NAMA --}}
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Nama Kategori
-                        </label>
-
-                        <input
-                            type="text"
-                            name="category_name"
-                            class="form-control"
-                            placeholder="Masukkan kategori"
-                            required>
-
-                    </div>
-
-                    {{-- JUMLAH PRODUK --}}
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Jumlah Produk
-                        </label>
-
-                        <input
-                            type="number"
-                            name="product_count"
-                            class="form-control"
-                            placeholder="0"
-                            required>
-
-                    </div>
-
-                    {{-- STATUS --}}
-                    <div class="mb-3">
-
-                        <label class="form-label">
-                            Status
-                        </label>
-
-                        <select
-                            name="status"
-                            class="form-select"
-                            required>
-
-                            <option value="1">
-                                Aktif
-                            </option>
-
-                            <option value="0">
-                                Nonaktif
-                            </option>
-
-                        </select>
-
-                    </div>
-
-                </div>
-
-                <div class="modal-footer border-0">
-
-                    <button
-                        type="submit"
-                        class="btn text-white px-4"
-                        style="background-color: #17354D;">
-
-                        Tambahkan
-
-                    </button>
-
-                </div>
-
+<div class="modal fade" id="kategoriModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow rounded-4">
+            <div class="modal-header border-0 px-4 pt-4 pb-0">
+                <h5 class="fw-bold text-dark d-flex align-items-center gap-2 mb-0">
+                    <i class="bi bi-tags text-primary fs-4"></i> Tambah Kategori Baru
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
+            <form action="{{ route('category.create') }}" method="POST">
+                @csrf
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary small mb-1">Nama Kategori</label>
+                        <input type="text" name="category_name" class="form-control py-2 rounded-3" placeholder="Contoh: Elektronik, Bahan Makanan, dll." required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary small mb-1">Jumlah Produk Awal</label>
+                        <input type="number" name="product_count" class="form-control py-2 rounded-3" placeholder="0" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold text-secondary small mb-1">Status Aktivasi</label>
+                        <select name="status" class="form-select py-2 rounded-3" required>
+                            <option value="1" selected>Aktif</option>
+                            <option value="0">Nonaktif</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 px-4 pb-4 pt-0">
+                    <button type="button" class="btn btn-light px-4 py-2 text-secondary rounded-3" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn text-white px-4 py-2 border-0 rounded-3 shadow-sm" style="background-color: #17354D;">Tambahkan</button>
+                </div>
+            </form>
         </div>
-
     </div>
-
-</form>
-
+</div>
+@include('partials.footer')
 @endsection
+
+{{-- Custom Style Tambahan --}}
+<style>
+    .card-hover-animate {
+        transition: all 0.2s ease-in-out;
+    }
+    .card-hover-animate:hover {
+        transform: translateY(-2px);
+        opacity: 0.95;
+    }
+    .fs-7 {
+        font-size: 0.75rem;
+    }
+    .tracking-wider {
+        letter-spacing: 0.06em;
+    }
+    .fw-extrabold {
+        font-weight: 800;
+    }
+    .table > :not(caption) > * > * {
+        padding: 0.85rem 0.75rem;
+    }
+</style>

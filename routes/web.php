@@ -6,6 +6,12 @@ use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\InventoryAdjustmentController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StockController;
+use App\Http\Controllers\DashboardController;
+
+
 
 
 /*
@@ -24,6 +30,8 @@ Route::middleware('guest')->group(function () {
 
     Route::post('/register', [AuthController::class, 'processRegister']);
 
+    
+
 });
 
 /*
@@ -40,8 +48,9 @@ Route::middleware('auth')->group(function () {
     |-------------------- 
     */ 
 
-    Route::view('/dashboard', 'dashboard')
-        ->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth'])
+    ->name('dashboard');
 
     Route::view('/daftar_stok', 'daftar_stok')
         ->name('stok.index');
@@ -58,7 +67,7 @@ Route::middleware('auth')->group(function () {
     |--------------
     */
 
-    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
     /*
     |----------------------
@@ -132,12 +141,57 @@ Route::middleware('auth')->group(function () {
     |------------------------------
     */
 
-    Route::prefix('purchaseOrder')->name('po.')->group(function (){
+    Route::prefix('purchaseorder')->name('po.')->group(function (){
 
-        Route::get('/', [PurchaseOrderController::class, 'index']);
+        Route::get('/', [PurchaseOrderController::class, 'index'])->name('index');
         Route::post('/store', [PurchaseOrderController::class, 'store'])->name('store');
+        Route::put('/store', [PurchaseOrderController::class, 'store'])->name('update');
+        Route::delete('/store', [PurchaseOrderController::class, 'store'])->name('delete');
+        Route::patch('/purchase-orders/{id}/update-status', [PurchaseOrderController::class, 'updateStatus'])
+            ->name('po.updateStatus');
 
     });
+
+    /*
+    |
+    |       Stock Routes
+    |
+    */
+
+    Route::prefix('daftar_stok')->name('stock.')->group(function () {
+        Route::get('/', [StockController::class, 'index'])->name('index');
+    });
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | Inventory Adjustment Routes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('inventoryadjustment')->name('adjustment.')->group(function () {
+
+        Route::get('/', [InventoryAdjustmentController::class, 'index'])->name('index');
+        Route::post('/store', [InventoryAdjustmentController::class, 'store'])->name('store');
+        Route::put('/update/{id}', [InventoryAdjustmentController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [InventoryAdjustmentController::class, 'destroy'])->name('destroy');
+        Route::patch('/update-status/{id}', [InventoryAdjustmentController::class, 'updateStatus']);
+
+    });
+
+        /*
+    |--------------------------------------------------------------------------
+    | Profile Routes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+        Route::put('/username', [ProfileController::class, 'updateUsername'])->name('update-username');
+        Route::put('/password', [ProfileController::class, 'updatePassword'])->name('update-password');
+        Route::put('/avatar', [ProfileController::class, 'updateAvatar'])->name('update-avatar');
+    });
+    
 
 });
    
