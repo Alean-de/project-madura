@@ -20,17 +20,19 @@ use App\Http\Controllers\DashboardController;
 |--------------------
 */
 
+Route::get('/', [AuthController::class, 'login'])->name('login');
+
+
 Route::middleware('guest')->group(function () {
     
-    Route::get('/', [AuthController::class, 'login']);
 
-    Route::post('/login', [AuthController::class, 'processLogin']);
-
+    Route::post('/login', [AuthController::class, 'processLogin'])->name('plogin');
     Route::get('/register', [AuthController::class, 'register']);
-
-    Route::post('/register', [AuthController::class, 'processRegister']);
-
-    
+    Route::post('/register', [AuthController::class, 'processRegister'])->name('pregister');
+    Route::get('/forgot-password', [AuthController::class, 'forgot'])->name('password.request');
+    Route::post('/forgot-password', [AuthController::class, 'processForgot'])->name('password.email');
+    Route::get('/reset-password', [AuthController::class, 'resetPasswordForm'])->name('password.reset');
+    Route::post('/reset-password', [AuthController::class, 'updatePassword'])->name('password.update');
 
 });
 
@@ -97,17 +99,12 @@ Route::middleware('auth')->group(function () {
     |------------------------
     */
     
-    Route::prefix('category')->name('category.')->group(function (){
-
-        Route::get('/', [CategoriesController::class, 'index'])
-            ->name('index');
-
-        Route::post('/create', [CategoriesController::class, 'create'])
-            ->name('create');
-            
-        Route::patch('/{category_id}/status', [CategoriesController::class, 'status'])
-            ->name('status');
-        
+    Route::prefix('category')->name('category.')->group(function () {
+        Route::get('/', [CategoriesController::class, 'index'])->name('index');
+        Route::post('/create', [CategoriesController::class, 'create'])->name('create');
+        Route::put('/{id}', [CategoriesController::class, 'update'])->name('update');
+        Route::patch('/{id}/status', [CategoriesController::class, 'status'])->name('status');
+        Route::delete('/{id}', [CategoriesController::class, 'delete'])->name('delete');
     });
 
     /*
@@ -158,7 +155,7 @@ Route::middleware('auth')->group(function () {
     |
     */
 
-    Route::prefix('daftar_stok')->name('stock.')->group(function () {
+    Route::prefix('daftar-stok')->name('stock.')->group(function () {
         Route::get('/', [StockController::class, 'index'])->name('index');
     });
 
@@ -192,7 +189,6 @@ Route::middleware('auth')->group(function () {
         Route::put('/avatar', [ProfileController::class, 'updateAvatar'])->name('update-avatar');
     });
     
-
 });
    
 

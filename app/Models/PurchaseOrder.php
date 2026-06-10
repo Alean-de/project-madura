@@ -24,7 +24,7 @@ class PurchaseOrder extends Model
 
     public function supplier(): BelongsTo
     {
-        return $this->belongsTo(Supplier::class, 'supplier_id', 'supplier_id');
+        return $this->belongsTo(Supplier::class, 'supplier_id', 'id');
     }
 
     public function detailPo(): HasMany
@@ -34,6 +34,6 @@ class PurchaseOrder extends Model
 
     public function product(): BelongsTo
     {
-        return $this->belongsTo(Product::class, 'product_id', 'product_id');
+        return $this->belongsTo(Product::class, 'product_id', 'id');
     }
 }

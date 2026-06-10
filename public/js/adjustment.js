@@ -38,7 +38,7 @@ function loadAdjustmentItems(page = 1) {
     $('#adjustmentTableBody').html('<tr><td colspan="4" class="text-center py-4 text-muted">Memuat data log mutasi...</td></tr>');
 
     $.ajax({
-        url: `${baseUrl}/inventoryadjustment`, 
+        url: `/inventoryadjustment`, 
         method: 'GET',
         dataType: 'json',
         data: {
@@ -87,7 +87,7 @@ function loadAdjustmentItems(page = 1) {
                         <td class="text-secondary small"><i class="bi bi-calendar-event me-1"></i>${formattedDate}</td>
                         <td class="fw-bold text-dark">${item.qty}</td>
                         <td class="text-center">
-                            <span class="badge rounded-pill px-3 py-1.5 fw-semibold small ${badgeClass}">● ${statusText}</span>
+                            <span class="badge rounded-pill px-3 py-1.5 fw-semibold small ${badgeClass}">${statusText}</span>
                         </td>
                     </tr>
                 `;
@@ -114,7 +114,7 @@ $('#formAdjustment').on('submit', function (e) {
     $submitBtn.prop('disabled', true).text('Menyimpan...');
 
     $.ajax({
-        url: $form.attr('action'),
+        url: `${baseUrl}/inventoryadjustment/store`,
         method: 'POST',
         data: $form.serialize(),
         dataType: 'json',

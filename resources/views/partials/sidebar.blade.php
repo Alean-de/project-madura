@@ -88,19 +88,20 @@
 
     {{-- FOOTER / USER ACCOUNT SECTION --}}
     <div class="mt-auto pt-3 border-top border-secondary border-opacity-25">
-        <div class="d-flex align-items-center gap-2 mb-3 px-2 py-1 bg-white bg-opacity-5 rounded-3 border border-secondary border-opacity-10">
-            <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center fw-bold text-uppercase" style="width: 32px; height: 32px; font-size: 0.85rem;">
+        
+        <div class="d-flex align-items-center gap-2 mb-2 px-2 py-2 bg-white bg-opacity-5 rounded-3 border border-secondary border-opacity-10">
+            <div class="bg-warning text-dark rounded-circle d-flex align-items-center justify-content-center fw-bold text-uppercase flex-shrink-0" style="width: 32px; height: 32px; font-size: 0.85rem;">
                 {{ substr(Auth::user()->name ?? 'U', 0, 1) }}
             </div>
             <div class="overflow-hidden">
-                <small class="text-black-50 fs-7 d-block mb-0 lh-1">Logged in as</small>
-                <span class="text-black fw-semibold text-truncate d-block small" style="max-width: 170px;">{{ Auth::user()->name }}</span>
+                <small class="text-black-50 fs-7 d-block mb-0 lh-1" style="font-size: 11px;">Logged in as</small>
+                <span class="text-black fw-semibold text-truncate d-block small" style="max-width: 150px;">{{ Auth::user()->name }}</span>
             </div>
         </div>
 
         <form action="{{ route('logout') }}" method="POST">
             @csrf
-            <button class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2 py-2 border-opacity-50 border-danger card-hover-animate" style="font-size: 0.9rem; font-weight: 500;">
+            <button class="btn btn-outline-danger w-100 d-flex align-items-center justify-content-center gap-2 py-2 border-opacity-50 border-danger card-hover-animate" style="font-size: 0.9rem; font-weight: 500; border-radius: 8px;">
                 <i class="bi bi-box-arrow-right fw-bold"></i>
                 <span>Keluar Aplikasi</span>
             </button>

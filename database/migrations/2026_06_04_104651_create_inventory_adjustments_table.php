@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('inventory_adjustments', function (Blueprint $table) {
             $table->id();
-            $table->string('product_name');
+            $table->foreignId('product_id')->constrained('products')->onDelete('cascade');
             $table->date('exp_date');
             $table->integer('qty');
             $table->enum('status', ['barang_masuk', 'barang_keluar', 'rusak', 'exp', 'pending']);

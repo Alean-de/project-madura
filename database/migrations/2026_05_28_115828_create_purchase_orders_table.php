@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('purchase_orders', function (Blueprint $table) {
             $table->id();
             $table->string('po_number')->unique();
-            $table->foreignId('user_id')->constrained('users', 'user_id')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained('users', 'id')->onDelete('cascade');
             $table->enum('status', ['dibatalkan', 'pending', 'selesai'])->default('pending');
             $table->integer('items');
             $table->unsignedBigInteger('total_price');

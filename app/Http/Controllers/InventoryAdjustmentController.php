@@ -47,41 +47,46 @@ class InventoryAdjustmentController extends Controller
         return view('inventory_adjustment', compact('products'));
     }
 
-    /**
-     * Menyimpan data adjustment baru (POST).
-     *
-     * @param Request $request
-     * @return JsonResponse
-     */
     public function store(Request $request): JsonResponse
     {
+        // 1. Tambahkan 'product_id' ke dalam validasi agar ditangkap oleh $validated
         $validated = $request->validate([
-            'product_id' => 'required|exists:products,product_id', 
+            'product_id' => 'required|exists:products,id', // Menangkap name="product_id" dari HTML
             'exp_date'   => 'required|date',
             'qty'        => 'required|integer|min:1',
             'status'     => 'required|in:barang_masuk,rusak,exp,barang_keluar,pending',
         ]);
 
-        // Gunakan Transaksi agar jika salah satu query gagal, database otomatis rollback
-        DB::transaction(function () use ($validated) {
-            // 1. Catat ke Log Perubahan
-            InventoryAdjustment::create($validated);
+        try {
+            // Gunakan DB Transaction agar proses aman
+            DB::transaction(function () use ($validated) {
+                
+                // 1. Catat ke Log Perubahan (Tabel inventory_adjustments harus punya kolom product_id)
+                InventoryAdjustment::create($validated);
+                $productQuery = Product::where('id', $validated['product_id']);
+                 if (!$productQuery->exists()) {
+                    throw new \Exception("Produk dengan ID tersebut tidak ditemukan.");
+                }
+                
+                // 3. Update Stok Aktual langsung via Query Builder (Terjamin masuk ke DB)
+                if (in_array($validated['status'], ['barang_masuk', 'pending'])) {
+                    $productQuery->increment('initial_stock', $validated['qty']); 
+                } else {
+                    $productQuery->decrement('initial_stock', $validated['qty']);
+                }
+            });
 
-            // 2. Update Stok Aktual di Tabel Product
-            $product = Product::findOrFail($validated['product_id']);
-            
-            if (in_array($validated['status'], ['barang_masuk', 'pending'])) {
-                // Tambah stok jika barang masuk
-                $product->increment('initial_stock', $validated['qty']); // Asumsi nama kolom di tabel product kamu adalah 'stock'
-            } else {
-                // Kurangi stok jika barang keluar / rusak / exp
-                $product->decrement('initial_stock', $validated['qty']);
-            }
-        });
+            return response()->json([
+                'success' => true,
+                'message' => 'Data adjustment berhasil disimpan dan stok produk telah diperbarui!'
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Data adjustment berhasil disimpan dan stok produk telah diperbarui!'
-        ]);
+        } catch (\Exception $e) {
+            // Menangkap error jika terjadi crash internal database
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal memperbarui database: ' . $e->getMessage()
+            ], 500);
+        }
     }
 }

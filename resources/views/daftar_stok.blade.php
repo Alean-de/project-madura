@@ -21,7 +21,7 @@
                     </div>
                     <div>
                         <small class="text-muted d-block text-uppercase fw-bold tracking-wider fs-7">Total Unit Stok</small>
-                        <h4 class="fw-bold mb-0 text-dark">{{ number_format($totalUnitStock ?? 0, 0, ',', '.') }}</h4>
+                        <h4 id="statTotalStock" class="fw-bold mb-0 text-dark">{{ number_format($totalUnitStock ?? 0, 0, ',', '.') }}</h4>
                     </div>
                 </div>
             </div>
@@ -35,7 +35,7 @@
                     </div>
                     <div>
                         <small class="text-muted d-block text-uppercase fw-bold tracking-wider fs-7">Stok Menipis (Low Stock)</small>
-                        <h4 class="fw-bold mb-0 {{ ($lowStockCount ?? 0) > 0 ? 'text-danger fw-extrabold' : 'text-dark' }}">{{ number_format($lowStockCount ?? 0, 0, ',', '.') }}</h4>
+                        <h4 id="statLowStock" class="fw-bold mb-0 {{ ($lowStockCount ?? 0) > 0 ? 'text-danger fw-extrabold' : 'text-dark' }}">{{ number_format($lowStockCount ?? 0, 0, ',', '.') }}</h4>
                     </div>
                 </div>
             </div>
@@ -50,25 +50,27 @@
                     <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Cari Barang</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-search"></i></span>
-                        <input type="text" class="form-control bg-light border-start-0 ps-0" placeholder="Cari nama produk, SKU, atau kode barang...">
+                        {{-- FIX: Tambahkan id="searchStock" --}}
+                        <input type="text" id="searchStock" class="form-control bg-light border-start-0 ps-0" placeholder="Cari nama produk, SKU, atau kode barang...">
                     </div>
                 </div>
+
                 <div class="col-sm-6 col-lg-3">
                     <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Status Kondisi</label>
-                    <select class="form-select bg-light">
+                    {{-- FIX: Tambahkan id="filterStockKondisi" --}}
+                    <select id="filterStockKondisi" class="form-select bg-light">
                         <option value="">Semua Status Stok</option>
-                        <option value="cukup">Cukup (Aman)</option>
-                        <option value="tipis">Tipis (Ambang Batas)</option>
-                        <option value="rendah">Rendah (Kritis)</option>
+                        <option value="cukup">Cukup</option>
+                        <option value="tipis">Tipis</option>
+                        <option value="rendah">Rendah</option>
                     </select>
                 </div>
+
                 <div class="col-sm-6 col-lg-4">
-                    <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Lokasi Penempatan</label>
-                    <select class="form-select bg-light">
+                    <label class="form-label small fw-bold text-muted text-uppercase tracking-wider">Kategori Produk</label>
+                    {{-- FIX: Ganti ke Kategori sesuai Controller & Tambahkan id="filterStockCategory" --}}
+                    <select id="filterStockCategory" class="form-select bg-light">
                         <option value="">Semua Gudang</option>
-                        @foreach ($warehouses ?? [] as $w)
-                            <option value="{{ $w->id }}">{{ $w->name }}</option>
-                        @endforeach
                     </select>
                 </div>
             </div>
@@ -82,61 +84,24 @@
                 <table class="table align-middle table-hover mb-0">
                     <thead class="table-light text-uppercase fs-7 tracking-wider text-muted border-bottom">
                         <tr>
+                            {{-- FIX: Total kolom disesuaikan menjadi 5 (Membuang kolom aksi karena ini page daftar stok) --}}
                             <th class="p-3 ps-4" style="width: 150px;">SKU</th>
                             <th>Spesifikasi Nama Produk</th>
                             <th style="width: 160px;">Stok Fisik</th>
                             <th style="width: 160px;">Batas Minimal</th>
                             <th class="text-center" style="width: 150px;">Status</th>
-                            <th class="text-center" style="width: 100px;">Aksi</th>
                         </tr>
                     </thead>
-                    <tbody class="border-0">
-                        @if(empty($product) || $product->isEmpty())
-                            <tr>
-                                <td colspan="6" class="text-center py-5 text-muted">
-                                    <i class="bi bi-inbox text-light-emphasis display-5 d-block mb-2"></i>
-                                    Tidak ditemukan data komoditas stok produk.
-                                </td>
-                            </tr>
-                        @else
-                            @foreach ($product as $p)
-                            <tr>
-                                <td class="p-3 ps-4">
-                                    <span class="badge bg-light text-secondary border px-2 py-1.5 rounded-2 font-monospace fs-7">
-                                        {{ $p->sku ?? 'PRD-' . str_pad($p->product_id, 3, '0', STR_PAD_LEFT) }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="fw-bold text-dark d-block">{{ $p->product_name }}</span>
-                                    <small class="text-muted fs-7"><i class="bi bi-tags me-1"></i>{{ optional($p->category)->category_name ?? 'Tanpa Kategori' }}</small>
-                                </td>
-                                <td class="fw-bold text-dark">{{ number_format($p->initial_stock, 0, ',', '.') }} <span class="text-muted fw-normal small">{{ $p->unit }}</span></td>
-                                <td class="text-secondary fw-semibold">{{ number_format($p->minimum_stock, 0, ',', '.') }} <span class="text-muted fw-normal small">{{ $p->unit }}</span></td>
-                                <td class="text-center">
-                                    @if ($p->initial_stock <= 0)
-                                        <span class="badge bg-danger-subtle text-danger px-3 py-1.5 rounded-pill fw-semibold small w-100">Habis</span>
-                                    @elseif ($p->initial_stock < $p->minimum_stock)
-                                        <span class="badge bg-danger-subtle text-danger px-3 py-1.5 rounded-pill fw-semibold small w-100">Rendah</span>
-                                    @elseif ($p->initial_stock == $p->minimum_stock)
-                                        <span class="badge bg-warning-subtle text-warning px-3 py-1.5 rounded-pill fw-semibold small w-100">Tipis</span>
-                                    @else
-                                        <span class="badge bg-success-subtle text-success px-3 py-1.5 rounded-pill fw-semibold small w-100">Cukup</span>
-                                    @endif
-                                </td>
-                                <td class="text-center">
-                                    {{-- EDIT STOCK BUTTON --}}
-                                    <button type="button" class="btn btn-sm btn-light border-0 text-primary p-2 rounded-3" data-bs-toggle="modal" data-bs-target="#editStockModal{{ $p->product_id }}">
-                                        <i class="bi bi-pencil-square fs-5"></i>
-                                    </button>
-                                </td>
-                            </tr>
-                            @endforeach
-                        @endif
+                    <tbody id="stockTableBody" class="border-0">
+                        {{-- Render otomatis via AJAX stock.js --}}
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
+
+    {{-- NAVIGASI PAGINASI --}}
+    <div id="paginationLinks" class="d-flex gap-1 mt-3"></div>
 </div>
 @include('partials.footer')
 @endsection
@@ -163,3 +128,8 @@
         padding: 0.85rem 0.75rem;
     }
 </style>
+
+{{-- FIX: Samakan nama stack push-nya (Kemarin lo nulis @push('script') tanpa 's') --}}
+@push('scripts')
+    <script src="{{ asset('js/stock.js') }}?v={{ time() }}"></script>
+@endpush

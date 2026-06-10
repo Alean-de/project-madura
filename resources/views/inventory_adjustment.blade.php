@@ -91,7 +91,7 @@
                         <select name="product_id" id="adj_product_id" class="form-select py-2 rounded-3" required>
                             <option value="" selected disabled>Tentukan nama komoditas barang</option>
                             @foreach ($products as $p)
-                                <option value="{{ $p->product_id }}">{{ $p->product_name }}</option>
+                                <option value="{{ $p->id }}">{{ $p->product_name }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -119,7 +119,7 @@
                 </div>
                 <div class="modal-footer border-0 px-4 pb-4 pt-0">
                     <button type="button" class="btn btn-light px-4 py-2 text-secondary rounded-3" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" id="btnSubmit" class="btn text-white px-4 py-2 border-0 rounded-3 shadow-sm" style="background-color:#17354D;">
+                    <button type="submit" id="btnSubmitPo" class="btn text-white px-4 py-2 border-0 rounded-3 shadow-sm" style="background-color:#17354D;">
                         Simpan
                     </button>
                 </div>

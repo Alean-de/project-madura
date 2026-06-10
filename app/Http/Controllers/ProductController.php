@@ -58,8 +58,8 @@ class ProductController extends Controller
     {
         $validated = $request->validate([
             'product_name'  => 'required|max:255|unique:products,product_name',
-            'category_id'   => 'required|exists:categories,category_id',
-            'supplier_id'   => 'required|exists:suppliers,supplier_id',
+            'category_id'   => 'required|exists:categories,id',
+            'supplier_id'   => 'required|exists:suppliers,id',
             'purchase_price'=> 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
             'initial_stock' => 'required|integer|min:0',
@@ -84,8 +84,8 @@ class ProductController extends Controller
         
         $validated = $request->validate([
             'product_name'  => 'required|max:255|unique:products,product_name,' . $id . ',product_id', 
-            'category_id'   => 'required|exists:categories,category_id',
-            'supplier_id'   => 'required|exists:suppliers,supplier_id',
+            'category_id'   => 'required|exists:categories,id',
+            'supplier_id'   => 'required|exists:suppliers,id',
             'purchase_price'=> 'required|numeric|min:0',
             'selling_price' => 'required|numeric|min:0',
             'minimum_stock' => 'required|integer|min:0',

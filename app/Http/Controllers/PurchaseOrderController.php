@@ -14,18 +14,20 @@ class PurchaseOrderController extends Controller
 {
     public function index(Request $request)
     {
-        $products = Product::all(); 
+        $products = Product::all();
 
-        $query = PurchaseOrder::with(['supplier', 'detailPo.product']);
+        $query = PurchaseOrder::with([
+            'supplier',
+            'detailPo.product'
+        ]);
 
         if ($request->filled('search')) {
             $search = $request->search;
+
             $query->where(function ($q) use ($search) {
-                // Cari berdasarkan nomor PO
                 $q->where('po_number', 'LIKE', "%{$search}%")
-                // Atau cari berdasarkan nama supplier dari tabel relasinya
                 ->orWhereHas('supplier', function ($sq) use ($search) {
-                    $sq->where('supplier_name', 'LIKE', "%{$search}%");
+                        $sq->where('supplier_name', 'LIKE', "%{$search}%");
                 });
             });
         }
@@ -35,66 +37,92 @@ class PurchaseOrderController extends Controller
         }
 
         if ($request->filled('supplier_id')) {
-            $query->where('purchase_orders.supplier_id', $request->supplier_id);
+            $query->where('supplier_id', $request->supplier_id);
         }
 
-        $suppliers = \App\Models\Supplier::orderBy('supplier_name', 'asc')->get();
+        $suppliers = Supplier::orderBy('supplier_name')->get();
 
         $purchase_orders = $query->latest()->get();
 
-        return view('pre_order', compact('suppliers', 'products', 'purchase_orders'));
+        if ($request->ajax()) {
+
+            return response()->json([
+                'success' => true,
+                'html' => view(
+                    'partials.po_table',
+                    compact('purchase_orders')
+                )->render()
+            ]);
+        }
+
+        return view('pre_order', compact(
+            'suppliers',
+            'products',
+            'purchase_orders'
+        ));
     }
 
     public function store(Request $request)
     {
         $request->validate([
-            'supplier_id' => 'required|exists:suppliers,supplier_id',
+            'supplier_id' => 'required|exists:suppliers,id',
             'status' => 'required|in:pending,selesai,dibatalkan',
             'products' => 'required|array|min:1',
-            'products.*.product_id' => 'required|exists:products,product_id',
+            'products.*.product_id' => 'required|exists:products,id',
             'products.*.qty' => 'required|integer|min:1',
         ]);
 
-        DB::transaction(function () use ($request) {
-            // Membuat data PO utama dengan menyertakan user_id dari user yang login
+        // Jalankan DB Transaction
+        return DB::transaction(function () use ($request) {
+            $userId = auth()->id();
+
+            // 1. Ambil semua data produk yang dikirim sekaligus
+            $productIds = collect($request->products)->pluck('product_id');
+            $products = Product::whereIn('id', $productIds)->get()->keyBy('id');
+
+            // 2. Buat PO Utama terlebih dahulu
             $po = PurchaseOrder::create([
                 'po_number' => 'PO-' . now()->format('YmdHis'),
                 'supplier_id' => $request->supplier_id,
                 'status' => $request->status,
                 'total_price' => 0,
-                'user_id' => auth()->id(), // <--- Solusi untuk error Field 'user_id'
+                'user_id' => $userId,
             ]);
 
+            // 3. Transformasi data input menjadi format Detail PO menggunakan Collection Map
             $grandTotal = 0;
-
-            foreach ($request->products as $item) {
-                $product = Product::findOrFail($item['product_id']);
-
+            
+            // PASTIKAN instruksi "use" membawa $products, $userId, $request, dan &$grandTotal
+            $details = collect($request->products)->map(function ($item) use ($products, $userId, $request, &$grandTotal) {
+                $product = $products->get($item['product_id']);
                 $subtotal = $item['qty'] * $product->purchase_price;
-
-                DetailPo::create([
-                    'purchase_order_id' => $po->id, 
-                    'product_id'        => $product->product_id,
-                    'quantity'          => $item['qty'],
-                    'uom'               => $product->unit ?? 'PCS',
-                    'uom_multiplier'    => 1,
-                    'unit_price'        => $product->purchase_price,
-                    'subtotal'          => $subtotal, 
-                    'user_id'           => auth()->id(), 
-                ]);
-
                 $grandTotal += $subtotal;
-            }
 
-            // Update total harga setelah semua item detail selesai dihitung
-            $po->update([
-                'total_price' => $grandTotal
+                return [
+                    'product_id'     => $product->id, 
+                    'supplier_id'    => $request->supplier_id, // Mengambil supplier_id langsung dari $request
+                    'quantity'       => $item['qty'],
+                    'uom'            => $product->unit ?? 'PCS',
+                    'uom_multiplier' => 1,
+                    'unit_price'     => $product->purchase_price,
+                    'subtotal'       => $subtotal,
+                    'user_id'        => $userId,
+                ];
+            });
+
+            // 4. Simpan semua detail lewat relasi Eloquent yang benar (detailPo) dan update grand total
+            $po->detailPo()->createMany($details->toArray()); 
+            $po->update(['total_price' => $grandTotal]);
+
+            // Load relasi agar data yang dikembalikan lengkap
+            $po->load('detailPo');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Purchase Order Berhasil Ditambahkan',
+                'data'    => $po
             ]);
         });
-
-        return redirect()
-            ->route('po.index')
-            ->with('success', 'Purchase Order berhasil dibuat.');
     }
 
     public function updateStatus(Request $request, $id)
@@ -105,7 +133,7 @@ class PurchaseOrderController extends Controller
 
         // Gunakan DB Transaction agar jika PO sukses terupdate tapi Adjustment gagal, data otomatis dibatalkan (aman)
         return DB::transaction(function () use ($request, $id) {
-            $po = PurchaseOrder::with('detailPo')->findOrFail($id);
+            $po = PurchaseOrder::with('detailPo.product')->findOrFail($id);
 
             // Jika status yang dikirim sama dengan status sekarang, tidak perlu diproses
             if ($po->status === $request->status) {
@@ -129,12 +157,11 @@ class PurchaseOrderController extends Controller
                         'qty'        => $detail->quantity,
                         'status'     => 'barang_masuk', // Otomatis tercatat sebagai barang masuk
                         'exp_date'   => now()->addYears(1)->format('Y-m-d'), // Batas penanda EXP sementara jika vendor tidak mencatatnya
-                        // 'notes'   => "Otomatis dari penyelesaian berkas " . $po->po_number (Opsional jika di DB kamu ada kolom catatan)
                     ]);
 
                     // 💡 TIPS TAMBAHAN: Di sini Kamu juga bisa langsung menambahkan query 
                     // untuk menambah stok utama di tabel 'products' Kamu jika diperlukan.
-                    // $detail->product->increment('stock', $detail->quantity);
+                    $detail->product->increment('initial_stock', $detail->quantity);
                 }
             }
 

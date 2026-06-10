@@ -45,19 +45,6 @@
 
                         <h5 class="fw-bold mb-1 text-dark">{{ auth()->user()->username ?? auth()->user()->name }}</h5>
                         <p class="badge bg-light text-secondary border px-3 py-1.5 rounded-pill small mb-4 fs-7">Pengguna Sistem Inventori</p>
-
-                        <div class="mb-3 text-start bg-light p-3 rounded-3 border">
-                            <label class="form-label small fw-bold text-secondary text-uppercase tracking-wider mb-2">Unggah Foto Baru</label>
-                            <input type="file" name="avatar" class="form-control form-control-sm bg-white border @error('avatar') is-invalid @enderror" required accept="image/*">
-                            @error('avatar')
-                                <div class="invalid-feedback mt-1">{{ $message }}</div>
-                            @enderror
-                            <div class="form-text fs-7 text-muted mt-1">Format: JPG, JPEG, atau PNG. Maksimal 2MB.</div>
-                        </div>
-
-                        <button type="submit" class="btn btn-sm text-white w-100 py-2.5 border-0 rounded-3 shadow-sm card-hover-animate" style="background-color: #17354D;">
-                            <i class="bi bi-upload me-1fw-bold"></i> Perbarui Foto Profil
-                        </button>
                     </form>
                 </div>
             </div>

@@ -12,11 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('products', function (Blueprint $table) {
-            $table->foreignId('user_id')->nullable()->constrained('users', 'user_id')->nullOnDelete();
-            $table->id('product_id');
+            $table->foreignId('user_id')->nullable()->constrained('users', 'id')->nullOnDelete();
+            $table->id();
             $table->string('product_name');
-            $table->foreignId('category_id')->nullable()->constrained('categories', 'category_id')->nullOnDelete();
-            $table->foreignId('supplier_id')->nullable()->constrained('suppliers', 'supplier_id');
+            $table->foreignId('category_id')->nullable()->constrained('categories', 'id')->nullOnDelete();
+            $table->foreignId('supplier_id')->nullable()->constrained('suppliers', 'id');
             $table->decimal('purchase_price', 15, 0);
             $table->decimal('selling_price', 15, 0);
             $table->integer('initial_stock')->default(0);

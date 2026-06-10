@@ -1,4 +1,40 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // === LOGIKA DINAMIS TAMBAH/HAPUS BARIS PRODUK (TAMBAHAN BARU) ===
+    const productTableBody = document.querySelector('#productTable tbody');
+    const addProductBtn = document.getElementById('addProduct');
+    const rowTemplate = document.getElementById('productRowTemplate');
+    let rowIndex = 1; // Mulai dari 1 karena indeks 0 sudah dipakai baris default awal
+
+    if (addProductBtn && productTableBody && rowTemplate) {
+        addProductBtn.addEventListener('click', function () {
+            // Ambil struktur HTML dari dalam <template>
+            let templateContent = rowTemplate.innerHTML;
+            
+            // Ganti __index__ di dalam template menjadi angka indeks yang unik dan dinamis
+            let newRowHtml = templateContent.replace(/__index__/g, rowIndex);
+            
+            // Masukkan baris baru ke dalam tabel body
+            productTableBody.insertAdjacentHTML('beforeend', newRowHtml);
+            
+            // Naikkan index untuk baris berikutnya
+            rowIndex++;
+        });
+    }
+
+    // Event delegation untuk menangani tombol hapus (remove-row) yang baru dibuat
+    if (productTableBody) {
+        productTableBody.addEventListener('click', function (e) {
+            if (e.target && e.target.classList.contains('remove-row')) {
+                const row = e.target.closest('tr');
+                // Pastikan baris tidak dihapus jika tombol dalam keadaan disabled (baris pertama)
+                if (row && !e.target.hasAttribute('disabled')) {
+                    row.remove();
+                }
+            }
+        });
+    }
+    // ==============================================================
+
 
     // 1. Logika AJAX ubah status di dalam tabel (Tanpa Reload)
     document.querySelectorAll('.status-select').forEach(select => {
@@ -51,6 +87,32 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
+    $('#formPurchaseOrder').on('submit', function (e) {
+        e.preventDefault(); // <-- Baris paling penting agar browser tidak pindah halaman
+        
+        let $submitBtn = $('#btnSubmitPo');
+        $submitBtn.prop('disabled', true).text('Menyimpan...');
+
+        $.ajax({
+            url: '/purchaseorder/store',
+            method: 'POST',
+            data: $(this).serialize(),
+            dataType: 'json',
+            success: function (response) {
+                if (response.success) {
+                    alert(response.message);
+                    window.location.href = '/purchaseorder'; // Alihkan halaman secara halus lewat JS jika sukses
+                }
+            },
+            error: function (xhr) {
+                alert('Terjadi kesalahan: ' + xhr.responseJSON.message);
+            },
+            complete: function () {
+                $submitBtn.prop('disabled', false).text('Simpan PO');
+            }
+        });
+    });
+
     // 3. Auto-submit untuk input pencarian teks (Debounce 0.5 detik)
     const searchInput = document.querySelector('[name="search"]');
     if (searchInput) {
@@ -65,13 +127,12 @@ document.addEventListener('DOMContentLoaded', function () {
 
         searchInput.addEventListener('keydown', e => {
             if (e.key === 'Enter') {
-                e.preventDefault(); // Mencegah double submit bawaan browser
+                e.preventDefault(); 
                 clearTimeout(typingTimer);
                 searchInput.closest('form')?.submit();
             }
         });
 
-        // Tweak UX: Kembalikan fokus kursor ke input search setelah reload halaman
         if (searchInput.value !== '') {
             searchInput.focus();
             const val = searchInput.value;

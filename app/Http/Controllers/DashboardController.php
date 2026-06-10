@@ -15,7 +15,7 @@ class DashboardController extends Controller
     {
         $totalProduk = Product::count();
 
-       $totalUnitStock = Product::sum('initial_stock');
+        $totalUnitStock = Product::sum('initial_stock');
 
         $lowStock = Product::whereColumn('initial_stock', '<=', 'minimum_stock')->count();
 
@@ -24,9 +24,9 @@ class DashboardController extends Controller
         $totalSupplier = Supplier::count();
 
             $categoryData = DB::table('products')
-            ->join('categories', 'products.category_id', '=', 'categories.category_id')
-            ->select('categories.category_name as cn', DB::raw('count(products.product_id) as total_products'))
-            ->groupBy('categories.category_id', 'categories.category_name')
+            ->join('categories', 'products.category_id', '=', 'categories.id')
+            ->select('categories.category_name as cn', DB::raw('count(products.id) as total_products'))
+            ->groupBy('categories.id', 'categories.category_name')
             ->get();
 
         // Pisahkan menjadi array Label dan array Data untuk Chart.js

@@ -119,9 +119,9 @@
                                         <select class="form-select form-select-sm border-0 fw-bold rounded-pill px-3 py-1.5 text-center {{ $bgColor }} {{ $textColor }} status-select" 
                                                 data-id="{{ $po->id }}" 
                                                 style="cursor: pointer; -webkit-appearance: none; appearance: none;">
-                                            <option value="pending" {{ $statusValue == 'pending' ? 'selected' : '' }}>● Pending</option>
-                                            <option value="selesai" {{ $statusValue == 'selesai' ? 'selected' : '' }}>● Selesai</option>
-                                            <option value="dibatalkan" {{ $statusValue == 'dibatalkan' ? 'selected' : '' }}>● Batal</option>
+                                            <option value="pending" {{ $statusValue == 'pending' ? 'selected' : '' }}>Pending</option>
+                                            <option value="selesai" {{ $statusValue == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                            <option value="dibatalkan" {{ $statusValue == 'dibatalkan' ? 'selected' : '' }}>Batal</option>
                                         </select>
                                     </td>
                                 </tr>
@@ -201,7 +201,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
 
-            <form action="{{ route('po.store') }}" method="POST">
+            <form id="formPurchaseOrder" method="POST">
                 @csrf
                 <div class="modal-body px-4 pt-3">
                     <div class="row g-3">
@@ -209,9 +209,9 @@
                             <label class="form-label fw-semibold text-secondary small mb-1">Pilih Vendor Supplier</label>
                             <select name="supplier_id" class="form-select py-2 rounded-3" required>
                                 <option value="" selected disabled>Tentukan target supplier utama</option>
-                                {{-- @foreach ($suppliers as $s)
-                                    <option value="{{ $s->supplier_id }}">{{ $s->supplier_name }}</option>
-                                @endforeach --}}
+                                @foreach ($suppliers as $s)
+                                    <option value="{{ $s->id }}">{{ $s->supplier_name }}</option>
+                                @endforeach
                             </select>
                         </div>
 
@@ -258,7 +258,7 @@
                                         <select name="products[0][product_id]" class="form-select" required>
                                             <option value="" selected disabled>Pilih komoditas barang</option>
                                             @foreach($products as $product)
-                                                <option value="{{ $product->product_id }}">{{ $product->name ?? $product->product_name }}</option>
+                                                <option value="{{ $product->id }}">{{ $product->name ?? $product->product_name }}</option>
                                             @endforeach
                                         </select>
                                     </td>

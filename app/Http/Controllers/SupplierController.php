@@ -8,76 +8,92 @@ use Illuminate\Validation\Rule;
 
 class SupplierController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $supplier = Supplier::owned()->get();
+        $query = Supplier::owned();
 
-        return view('supplier', compact('supplier'));
+        $query->when($request->filled('search'), function ($q) use ($request) {
+            $q->where(function ($sub) use ($request) {
+                $sub->where('supplier_name', 'like', "%{$request->search}%")
+                    ->orWhere('contacts', 'like', "%{$request->search}%")
+                    ->orWhere('city', 'like', "%{$request->search}%");
+            });
+        });
+
+        $suppliers = $query->paginate(10);
+
+        if ($request->ajax() || $request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'data' => $suppliers
+            ]);
+        }
+
+        return view('supplier');
     }
 
     public function create(Request $request)
-    {   
-        $request->validate([
-            'supplier_name' => [
-                'required',
-                'max:255',
-
-                Rule::unique('suppliers', 'supplier_name')
-                ->where(function ($query) {
-                    return $query->where('user_id', auth()->id());
-                })
-                
-            ],
-
-            'contacts' => [
-                'required',
-            
-                Rule::unique('suppliers', 'contacts')
-                ->where(function ($query) {
-                    return $query->where('user_id', auth()->id());
-                })
-            ]  
+    {
+        $validated = $request->validate([
+            'supplier_name' => 'required|max:255',
+            'contacts' => 'required|max:20',
+            'city' => 'required|max:255',
         ]);
 
-        Supplier::create([
-            'user_id'=> auth()->id(),
-            'supplier_name' => $request->supplier_name,
-            'contacts' => $request->contacts,
-            'city' => $request->city,
+        $supplier = Supplier::create([
+            ...$validated,
+            'user_id' => auth()->id()
         ]);
-        return redirect()->back()->with('success', 'Supplier Berhasil Dibuat');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Supplier berhasil ditambahkan',
+            'data' => $supplier
+        ]);
     }
 
-    public function delete($supplier_id)
+    public function delete(int $supplier_id)
     {
         $supplier = Supplier::owned()->findOrFail($supplier_id);
+
         $supplier->delete();
 
-        return redirect()->back()->with('success', 'Kategori Berhasil Dihapus');
+        return response()->json([
+            'success' => true,
+            'message' => 'Supplier berhasil dihapus'
+        ]);
     }
 
-    public function status(Request $request, $supplier_id)
+    public function status(Request $request, int $supplier_id)
     {
-        $supplier = Supplier::findOrFail($supplier_id);
+        $supplier = Supplier::owned()->findOrFail($supplier_id);
 
         $supplier->update([
             'status' => $request->status
         ]);
 
-        return back();
+        return response()->json([
+            'success' => true
+        ]);
     }
 
-    public function update(Request $request, int $supplier_id)
+   public function update(Request $request, int $supplier_id)
     {
-        $produk = Supplier::owned()->findOrFail($supplier_id);
-        
-        $produk->update([
-            'supplier_name'  => $request->supplier_name,
-            'contacts'     => $request->contacts,
-            'city'     => $request->city,
+        $supplier = Supplier::owned()->findOrFail($supplier_id);
+
+        $validated = $request->validate([
+            'supplier_name' => 'required|max:255',
+            'contacts' => 'required|max:20',
+            'city' => 'required|max:255',
         ]);
 
-        return redirect()->route('supplier.index')->with('success', 'Produk berhasil diperbarui!');
+        $supplier->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Supplier berhasil diperbarui',
+            'data' => $supplier
+        ]);
     }
 
 }

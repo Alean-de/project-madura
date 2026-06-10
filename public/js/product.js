@@ -1,5 +1,6 @@
 let products = [];
 let searchTimeout;
+let selectedProductId = null;
 
 $(document).ready(function () {
 
@@ -50,19 +51,32 @@ function loadProductItems(page = 1) {
                 return;
             }
 
-            products.forEach(function (product) {
+            products.forEach(function (product, index) {
                 let row = `
                     <tr>
-                        <td>${product.product_name}</td>
-                        <td>${product.unit}</td>
-                        <td>${product.categories?.category_name || '-'}</td>
-                        <td>${product.suppliers?.supplier_name || '-'}</td>
-                        <td>${formatRupiah(product.purchase_price)}</td>
-                        <td>${formatRupiah(product.selling_price)}</td>
-                        <td>${product.minimum_stock}</td>
-                        <td>
-                            <button class="btn btn-sm btn-warning btn-edit" data-id="${product.product_id}">Edit</button>
-                            <button class="btn btn-sm btn-danger btn-delete" data-id="${product.product_id}">Hapus</button>
+                        <td class="text-center">
+                            ${(response.data.current_page - 1) * response.data.per_page + index + 1}
+                        </td>
+                        <td class="text-center">${product.product_name}</td>
+                        <td class="text-center">${product.unit}</td>
+                        <td class="text-center">${product.categories?.category_name || '-'}</td>
+                        <td class="text-center">${formatRupiah(product.purchase_price)}</td>
+                        <td class="text-center">${formatRupiah(product.selling_price)}</td>
+                        <td class="text-center">${product.minimum_stock}</td>
+                        <td class="text-center">
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-light border-0 text-primary p-2 rounded-3 btn-edit"
+                                data-id="${product.id}">
+                                <i class="bi bi-pencil-square fs-5"></i>
+                            </button>
+
+                            <button
+                                type="button"
+                                class="btn btn-sm btn-light border-0 text-danger p-2 rounded-3 btn-delete"
+                                data-id="${product.id}">
+                                <i class="bi bi-trash3 fs-5"></i>
+                            </button>
                         </td>
                     </tr>
                 `;
@@ -93,9 +107,15 @@ $('#formNewProduct').on('submit', function (e) {
         dataType: 'json',
         success: function (response) {
             if (response.success) {
-                alert(response.message || 'Produk berhasil disimpan!');
+                bootstrap.Modal
+                    .getInstance(
+                        document.getElementById('inputModal')
+                    )
+                    .hide();
+
                 $form[0].reset();
-                loadProductItems(); // Reload table
+
+                loadProductItems();
             }
         },
         error: function (xhr) {
@@ -114,14 +134,14 @@ $('#formNewProduct').on('submit', function (e) {
 
 $(document).on('click', '.btn-edit', function () {
     const productId = $(this).data('id');
-    const product = products.find(p => p.product_id == productId);
+    const product = products.find(p => p.id == productId);
 
     if (!product) {
         alert('Produk tidak ditemukan');
         return;
     }
 
-    $('#edit_product_id').val(product.product_id);
+    $('#edit_product_id').val(product.id);
     $('#edit_product_name').val(product.product_name);
     $('#edit_unit').val(product.unit);
     $('#edit_purchase_price').val(product.purchase_price);
@@ -170,33 +190,60 @@ $('#formEditProduct').on('submit', function (e) {
 });
 
 $(document).on('click', '.btn-delete', function () {
-    const productId = $(this).data('id');
 
-    if (!confirm('Yakin hapus produk ini?')) {
-        return;
-    }
+    selectedProductId = $(this).data('id');
+
+    bootstrap.Modal
+        .getOrCreateInstance(
+            document.getElementById('deleteProductModal')
+        )
+        .show();
+});
+
+$('#confirmDeleteProduct').on('click', function () {
+
+    if (!selectedProductId) return;
 
     $.ajax({
-        url: `/product/${productId}`,
+        url: `/product/${selectedProductId}`,
         method: 'POST',
         data: {
             _method: 'DELETE'
         },
         dataType: 'json',
+
         success: function (response) {
-            alert(response.message || 'Produk berhasil dihapus!');
+
+            bootstrap.Modal
+                .getInstance(
+                    document.getElementById('deleteProductModal')
+                )
+                .hide();
+
             loadProductItems();
+
+            alert(
+                response.message ||
+                'Produk berhasil dihapus!'
+            );
         },
+
         error: function (xhr) {
             console.error(xhr.responseJSON);
+
             alert('Gagal menghapus produk.');
         }
     });
+
 });
 
 $(document).on('click', '.page-btn', function () {
     const page = $(this).data('page');
     loadProductItems(page);
+});
+
+$('#modalEditProduct').on('hidden.bs.modal', function () {
+    $('#formEditProduct')[0].reset();
 });
 
 function formatRupiah(number) {

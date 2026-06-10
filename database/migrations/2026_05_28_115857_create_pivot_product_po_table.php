@@ -13,18 +13,13 @@ return new class extends Migration
     {
         Schema::create('detail_po', function (Blueprint $table) {
             $table->id();
-
-            // Relasi antar table
             $table->foreignId('purchase_order_id')->constrained('purchase_orders', 'id')->onDelete('cascade');
-            $table->foreignId('product_id')->constrained('products', 'product_id');
-            $table->foreignId('user_id')->nullable()->constrained('users', 'user_id')->onDelete('set null');
-
-            // Kuantitas
+            $table->foreignId('product_id')->constrained('products', 'id');
+            $table->foreignId('supplier_id')->constrained('suppliers', 'id');
+            $table->foreignId('user_id')->nullable()->constrained('users', 'id')->onDelete('set null');
             $table->integer('quantity')->default(1);
             $table->string('uom', 20)->default('pcs');
             $table->integer('uom_multiplier')->default(1);
-            
-            // Keuangan
             $table->decimal('unit_price', 15, 2);
             $table->decimal('subtotal', 15, 2);
 
