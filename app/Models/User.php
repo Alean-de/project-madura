@@ -21,8 +21,7 @@ class User extends Authenticatable
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
-     */
-    protected $primaryKey = 'user_id';
+     */ 
 
     protected function casts(): array
     {
@@ -32,17 +31,17 @@ class User extends Authenticatable
         ];
     }
 
-    public function product()
+    public function products()
     {
         return $this->hasMany(Product::class, 'user_id', 'user_id');
     }
 
-    public function category()
+    public function categores()
     {
         return $this->hasMany(Category::class, 'user_id', 'user_id');
     }
     
-    public function supplier()
+    public function suppliers()
     {
         return $this->hasMany(Supplier::class, 'user_id', 'user_id');
     }

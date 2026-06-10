@@ -4,62 +4,191 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\PurchaseOrderController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\InventoryAdjustmentController;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\StockController;
+use App\Http\Controllers\DashboardController;
+
+
+
+
+/*
+|--------------------
+|   Guest Routes 
+|--------------------
+*/
+
+Route::get('/', [AuthController::class, 'login'])->name('login');
 
 
 Route::middleware('guest')->group(function () {
     
-    Route::get('/login', [AuthController::class, 'login'])
-    ->name('login');
-    Route::post('/login', [AuthController::class, 'processLogin']);
 
+    Route::post('/login', [AuthController::class, 'processLogin'])->name('plogin');
     Route::get('/register', [AuthController::class, 'register']);
-    Route::post('/register', [AuthController::class, 'processRegister']);
+    Route::post('/register', [AuthController::class, 'processRegister'])->name('pregister');
+    Route::get('/forgot-password', [AuthController::class, 'forgot'])->name('password.request');
+    Route::post('/forgot-password', [AuthController::class, 'processForgot'])->name('password.email');
+    Route::get('/reset-password', [AuthController::class, 'resetPasswordForm'])->name('password.reset');
+    Route::post('/reset-password', [AuthController::class, 'updatePassword'])->name('password.update');
 
 });
 
+/*
+|----------------------------
+|   Authenticated Routes
+|---------------------------- 
+*/
+
 Route::middleware('auth')->group(function () {
+
+    /*
+    |-------------------- 
+    |   Static Views
+    |-------------------- 
+    */ 
+
+    Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth'])
+    ->name('dashboard');
+
+    Route::view('/daftar_stok', 'daftar_stok')
+        ->name('stok.index');
+
+    Route::view('/pre_order', 'pre_order')
+        ->name('preorder.index');
+
+    Route::view('/profile', 'profile')
+        ->name('profile');
+
+    /*
+    |--------------
+    |   Logout 
+    |--------------
+    */
+
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    /*
+    |----------------------
+    |   Product Routes
+    |----------------------
+    */
+
+    Route::prefix('product')->name('product.')->group(function (){
+
+        Route::get('/', [ProductController::class, 'index'])
+            ->name('index');
+
+        Route::post('/create', [ProductController::class, 'create'])
+            ->name('create');
+            
+        Route::put('/{product_id}', [ProductController::class, 'update'])
+            ->name('update');
+
+        Route::delete('/{product_id}', [ProductController::class, 'delete'])
+            ->name('delete');
+
+    });
+
+    /*
+    |------------------------
+    |   Category Routes
+    |------------------------
+    */
     
-    Route::get('/dashboard', function () {
-        return view('dashboard');
+    Route::prefix('category')->name('category.')->group(function () {
+        Route::get('/', [CategoriesController::class, 'index'])->name('index');
+        Route::post('/create', [CategoriesController::class, 'create'])->name('create');
+        Route::put('/{id}', [CategoriesController::class, 'update'])->name('update');
+        Route::patch('/{id}/status', [CategoriesController::class, 'status'])->name('status');
+        Route::delete('/{id}', [CategoriesController::class, 'delete'])->name('delete');
     });
 
-    Route::get('/daftar_stok', function () {
-        return view('daftar_stok');
+    /*
+    |------------------------
+    |   Supplier Routes
+    |------------------------
+    */
+
+    Route::prefix('supplier')->name('supplier.')->group(function (){
+
+        Route::get('/', [SupplierController::class, 'index'])
+            ->name('index');
+
+        Route::post('/create', [SupplierController::class, 'create'])
+            ->name('create');
+            
+        Route::put('/{supplier_id}', [SupplierController::class, 'update'])
+            ->name('update');
+            
+        Route::patch('/{supplier_id}/status', [SupplierController::class, 'status'])
+            ->name('status');
+            
+        Route::delete('/{supplier_id}', [SupplierController::class, 'delete'])
+            ->name('delete');
+            
     });
 
-    Route::get('/kategori', [CategoriesController::class, 'index'])->name('kategori.index');
+    /*
+    |------------------------------
+    |   Purchase Order Routes
+    |------------------------------
+    */
 
-    Route::get('/pre_order', function () {
-        return view('pre_order');
+    Route::prefix('purchaseorder')->name('po.')->group(function (){
+
+        Route::get('/', [PurchaseOrderController::class, 'index'])->name('index');
+        Route::post('/store', [PurchaseOrderController::class, 'store'])->name('store');
+        Route::put('/store', [PurchaseOrderController::class, 'store'])->name('update');
+        Route::delete('/store', [PurchaseOrderController::class, 'store'])->name('delete');
+        Route::patch('/purchase-orders/{id}/update-status', [PurchaseOrderController::class, 'updateStatus'])
+            ->name('po.updateStatus');
+
     });
 
-    Route::get('/produk', [ProductController::class, 'index'])->name('produk.index');
+    /*
+    |
+    |       Stock Routes
+    |
+    */
 
-    Route::get('/profile', function () {
-        return view('profile');
+    Route::prefix('daftar-stok')->name('stock.')->group(function () {
+        Route::get('/', [StockController::class, 'index'])->name('index');
     });
 
-    Route::get('/supplier', [SupplierController::class, 'index'])->name('supplier.index');
 
-    Route::post('/produk/simpan', [ProductController::class, 'store'])->name('produk.store');
+    /*
+    |--------------------------------------------------------------------------
+    | Inventory Adjustment Routes
+    |--------------------------------------------------------------------------
+    */
 
-    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::prefix('inventoryadjustment')->name('adjustment.')->group(function () {
 
-    Route::post('/kategori/simpan', [CategoriesController::class, 'newCategory'])->name('kategori.newKategori');
+        Route::get('/', [InventoryAdjustmentController::class, 'index'])->name('index');
+        Route::post('/store', [InventoryAdjustmentController::class, 'store'])->name('store');
+        Route::put('/update/{id}', [InventoryAdjustmentController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [InventoryAdjustmentController::class, 'destroy'])->name('destroy');
+        Route::patch('/update-status/{id}', [InventoryAdjustmentController::class, 'updateStatus']);
 
-    Route::post('/supplier/simpan', [SupplierController::class, 'newSupplier'])->name('supplier.newSupplier');
+    });
 
-    Route::delete('/produk/{id}', [ProductController::class, 'destroy'])->name('produk.destroy');
-    Route::delete('/category/{category_id}', [CategoriesController::class, 'deleteCategory'])->name('category.deleteCategory');
-    Route::delete('/supplier/{supplier_id}', [SupplierController::class, 'deleteSupplier'])->name('category.deleteSupplier');
+        /*
+    |--------------------------------------------------------------------------
+    | Profile Routes
+    |--------------------------------------------------------------------------
+    */
+
+    Route::prefix('profile')->name('profile.')->group(function () {
+        Route::get('/', [ProfileController::class, 'edit'])->name('edit');
+        Route::put('/username', [ProfileController::class, 'updateUsername'])->name('update-username');
+        Route::put('/password', [ProfileController::class, 'updatePassword'])->name('update-password');
+        Route::put('/avatar', [ProfileController::class, 'updateAvatar'])->name('update-avatar');
+    });
     
-    Route::put('/product{id}', [ProductController::class, 'update'])->name('produk.update');
-    Route::put('/supplier{id}', [SupplierController::class, 'updateData'])->name('supplier.updateData');
-    Route::put('/kategori/{id}', [CategoriesController::class, 'update'])->name('kategori.update');
-
-    Route::patch('/category/{id}/status', [CategoriesController::class, 'updateStatus'])->name('category.updateStatus');
-    Route::patch('/supplier/{id}/status', [SupplierController::class, 'updateStatus'])->name('supplier.updateStatus');
 });
    
 

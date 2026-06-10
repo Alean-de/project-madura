@@ -3,7 +3,6 @@
 <head>
     @include('partials.header')
     <style>
-        /* 🔥 CUSTOM STYLE INVENTORIKU - SPLIT BLUE LIGHT MODE */
         body {
             background-color: #f8f9fa !important; 
             font-family: 'Plus Jakarta Sans', sans-serif;
@@ -14,7 +13,6 @@
             border-radius: 16px !important;
             overflow: hidden; 
         }
-        /* 🔥 KOTAK BANNER BIRU UNTUK LOGO INVENTORIKU */
         .brand-banner {
             background-color:#17354D !important; 
             padding: 24px;
@@ -45,7 +43,7 @@
             color: #6c757d;
             font-size: 11px;
             font-weight: 600;
-            text-transform: uppercase; /* Perbaikan sintaks uppercase dari kode awal */
+            text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         .form-control-custom {
@@ -71,18 +69,9 @@
             transition: all 0.2s ease;
         }
         .btn-adddawn:hover {
-            background-color: #122a3d !important; /* Dibuat sedikit lebih gelap saat hover */
+            background-color: #122a3d !important;
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-        }
-        .text-link {
-            color: #0d6efd !important;
-            font-weight: 500;
-            transition: all 0.2s ease;
-        }
-        .text-link:hover {
-            color: #0b5ed7 !important;
-            text-decoration: underline !important;
         }
     </style>
 </head>
@@ -98,44 +87,37 @@
             </div>
 
             <div class="p-4 pt-3">
-                <h5 class="login-title text-center mb-2">Reset Password</h5>
-                <p class="text-muted text-center small mb-4">Masukkan email Anda untuk menerima tautan pemulihan kata sandi.</p>
+                <h5 class="login-title text-center mb-1">Kata Sandi Baru</h5>
+                <p class="text-muted text-center small mb-3">Langkah terakhir untuk memulihkan akun Anda.</p>
+                
+                <div class="alert alert-info bg-info bg-opacity-10 text-dark border-0 small p-2 rounded-3 text-center mb-3" style="font-size: 12px;">
+                    Mengubah sandi untuk: <strong class="text-primary">{{ session('reset_email') }}</strong>
+                </div>
 
-                @if(session('status'))
-                    <div class="alert alert-success bg-success bg-opacity-10 text-success border-0 small p-2 rounded-3 text-center mb-3">
-                        <i class="bi bi-check-circle-fill me-1"></i> {{ session('status') }}
-                    </div>
-                @endif
-
-                @error('email')
-                    <div class="alert alert-danger bg-danger bg-opacity-10 text-danger border-0 small p-2 rounded-3 text-center mb-3">
-                        <i class="bi bi-exclamation-circle-fill me-1"></i> {{ $message }}
-                    </div>
-                @enderror
-
-                <form action="{{ route('password.email') }}" method="POST">
+                <form action="{{ route('password.update') }}" method="POST">
                     @csrf
 
+                    <div class="mb-3">
+                        <label for="password" class="form-label form-label-custom mb-1">Kata Sandi Baru</label>
+                        <input type="password" name="password" id="password" placeholder="••••••••" class="form-control form-control-custom shadow-none @error('password') is-invalid @enderror" required autofocus>
+                        @error('password')
+                            <div class="text-danger small mt-1" style="font-size: 12px;">{{ $message }}</div>
+                        @enderror
+                    </div>
+
                     <div class="mb-4">
-                        <label for="email" class="form-label form-label-custom mb-1">Alamat Email Terdaftar</label>
-                        <input type="email" name="email" id="email" value="{{ old('email') }}" placeholder="Masukkan email akun Anda" class="form-control form-control-custom shadow-none" required autocomplete="email" autofocus>
+                        <label for="password_confirmation" class="form-label form-label-custom mb-1">Ulangi Kata Sandi Baru</label>
+                        <input type="password" name="password_confirmation" id="password_confirmation" placeholder="••••••••" class="form-control form-control-custom shadow-none" required>
                     </div>
 
-                    <button type="submit" class="btn btn-adddawn w-100 mb-3 shadow-sm d-flex align-items-center justify-content-center gap-2">
-                        <i class="bi bi-envelope-paper-fill"></i> Kirim Link Pemulihan
+                    <button type="submit" class="btn btn-adddawn w-100 shadow-sm d-flex align-items-center justify-content-center gap-2">
+                        <i class="bi bi-check-all fs-5"></i> Simpan & Perbarui Sandi
                     </button>
-
-                    <div class="text-center">
-                        <span class="text-muted small">Ingat kata sandi Anda? </span>
-                        <a href="{{ route('login') }}" class="text-link text-decoration-none small fw-semibold">Kembali ke Login</a>
-                    </div>
-
                 </form>
             </div>
 
         </div>
     </div>
-
     @include('partials.footer')
 </body>
 </html>

@@ -6,11 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    protected $primaryKey = 'product_id';
-
     protected $fillable = [
         'user_id',
-        'product_id',
+        'id',
         'product_name',
         'category_id',
         'supplier_id',
@@ -21,18 +19,28 @@ class Product extends Model
         'unit'
     ];
 
-    public function category()
+    public function categories()
     {
-        return $this->belongsTo(Category::class, 'category_id', 'category_id');
+        return $this->belongsTo(Category::class, 'category_id', 'id');
     }
 
-    public function supplier()
+    public function suppliers()
     {
-        return $this->belongsTo(Supplier::class, 'supplier_id', 'supplier_id');
+        return $this->belongsTo(Supplier::class, 'supplier_id', 'id');
     }
 
-    public function user()
+    public function users()
     {
-        return $this->belongsTo(User::class, 'user_id', 'user_id');
+        return $this->belongsTo(User::class, 'user_id', 'id');
+    }
+
+    public function detailPo()
+    {
+        return $this->hasMany(DetailPo::class, 'product_id', 'id');
+    }
+
+    public function scopeOwned($query)
+    {
+        return $query->where('user_id', auth()->id());
     }
 }
